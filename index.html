@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HTML Editor</title>
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { height: 100%; }
@@ -35,9 +37,14 @@
 
   button {
     -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font: inherit;
-    font-size: 13px;
-    padding: 7px 11px;
+    font-size: 16px;
+    padding: 7px 10px;
+    min-width: 38px;
+    min-height: 36px;
     color: #cfd6e4;
     background: #1d2230;
     border: 1px solid #2b3242;
@@ -45,7 +52,9 @@
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
+    line-height: 1;
   }
+  button i { font-size: 1.15rem; line-height: 1; }
   button:hover  { background: #262d3e; }
   button:active { background: #323b50; }
   button.primary {
@@ -69,6 +78,7 @@
     outline: none;
   }
   .findbar input:focus { border-color: #3b82f6; }
+  .findbar button { min-width: 36px; min-height: 34px; padding: 6px 8px; }
 
   /* ---------- Editor ---------- */
   .editor-wrap {
@@ -183,21 +193,43 @@
 <body>
 
 <div class="toolbar">
-  <button id="btnOpen">Öffnen</button>
-  <button id="btnPaste">Einfügen</button>
-  <button id="btnCopy">Kopieren</button>
-  <button id="btnFormat">Format</button>
-  <button id="btnFind">Suchen</button>
-  <button id="btnDownload" class="primary">Download</button>
+  <button id="btnOpen" title="Datei öffnen" aria-label="Datei öffnen">
+    <i class="bi bi-folder2-open" aria-hidden="true"></i>
+  </button>
+  <button id="btnPaste" title="Aus Zwischenablage einfügen" aria-label="Aus Zwischenablage einfügen">
+    Einfügen
+  </button>
+  <button id="btnCopy" title="Kopieren" aria-label="Kopieren">
+    <i class="bi bi-clipboard" aria-hidden="true"></i>
+  </button>
+  <button id="btnFormat" title="Formatieren" aria-label="Formatieren">
+    <i class="bi bi-magic" aria-hidden="true"></i>
+  </button>
+  <button id="btnFind" title="Suchen und Ersetzen" aria-label="Suchen und Ersetzen">
+    <i class="bi bi-search" aria-hidden="true"></i>
+  </button>
+  <button id="btnDownload" class="primary" title="Als HTML herunterladen" aria-label="Als HTML herunterladen">
+    <i class="bi bi-download" aria-hidden="true"></i>
+  </button>
+  <button id="btnShare">
+    <i class="bi bi-share" aria-hidden="true"></i></button>
 </div>
 
 <div class="findbar" id="findbar" hidden>
   <input id="findInput" type="text" placeholder="Suchen …" autocomplete="off" spellcheck="false">
   <input id="replaceInput" type="text" placeholder="Ersetzen …" autocomplete="off" spellcheck="false">
-  <button id="btnFindNext">Weiter</button>
-  <button id="btnReplace">Ersetzen</button>
-  <button id="btnReplaceAll">Alle</button>
-  <button id="btnCloseFind">✕</button>
+  <button id="btnFindNext" title="Nächster Treffer" aria-label="Nächster Treffer">
+    <i class="bi bi-arrow-down" aria-hidden="true"></i> Finden
+  </button>
+  <button id="btnReplace" title="Ersetzen" aria-label="Ersetzen">
+    <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Ersetzen
+  </button>
+  <button id="btnReplaceAll" title="Alle ersetzen" aria-label="Alle ersetzen">
+    <i class="bi bi-check2-all" aria-hidden="true"></i> Alle Ersetzen
+  </button>
+  <button id="btnCloseFind" title="Schließen" aria-label="Schließen">
+    <i class="bi bi-x-lg" aria-hidden="true"></i>
+  </button>
 </div>
 
 <div class="editor-wrap" id="editorWrap">
@@ -920,7 +952,33 @@
 </body>
 </html>`;
 
-  // setValue(SAMPLE);
+  document.getElementById('btnShare').addEventListener('click', async () => {
+  const fileName = 'index.html';
+  const blob = new Blob([editor.value], { type: 'text/html;charset=utf-8' });
+  const file = new File([blob], fileName, { type: 'text/html' });
+
+  // Prüfen, ob der Browser das Teilen von Dateien unterstützt
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      // Wichtig: Nur die Datei übergeben (kein text/title), 
+      // um WhatsApp-Probleme auf iOS zu vermeiden.
+      await navigator.share({ files: [file] });
+      toast('Teilen-Menü geöffnet');
+    } catch (err) {
+      // Abbruch durch den Nutzer (AbortError) ist kein Fehler
+      if (err.name !== 'AbortError') {
+        console.error('Teilen fehlgeschlagen:', err);
+        toast('Teilen fehlgeschlagen – nutze Download');
+        // Fallback: Download auslösen
+        document.getElementById('btnDownload').click();
+      }
+    }
+  } else {
+    // Fallback für nicht unterstützte Browser
+    toast('Teilen wird hier nicht unterstützt – Download gestartet');
+    document.getElementById('btnDownload').click();
+  }
+});
 })();
 </script>
 </body>
