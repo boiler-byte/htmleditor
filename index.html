@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HTML Editor</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; }
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #0f1116;
+    color: #d7dce5;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+  }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar, .findbar {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    background: #151821;
+    border-bottom: 1px solid #232833;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+    font: inherit;
+    font-size: 13px;
+    padding: 7px 11px;
+    color: #cfd6e4;
+    background: #1d2230;
+    border: 1px solid #2b3242;
+    border-radius: 7px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  button:hover  { background: #262d3e; }
+  button:active { background: #323b50; }
+  button.primary {
+    background: #1f4b8f;
+    border-color: #2f66bd;
+    color: #eaf1ff;
+  }
+  button.primary:hover { background: #275aa8; }
+
+  /* ---------- Suchleiste ---------- */
+  .findbar input {
+    flex: 1 1 130px;
+    min-width: 0;
+    padding: 7px 9px;
+    font: inherit;
+    font-size: 13px;
+    color: #d7dce5;
+    background: #0e1117;
+    border: 1px solid #2b3242;
+    border-radius: 7px;
+    outline: none;
+  }
+  .findbar input:focus { border-color: #3b82f6; }
+
+  /* ---------- Editor ---------- */
+  .editor-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    background: #0f1116;
+  }
+
+  .editor-wrap pre,
+  .editor-wrap textarea {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 12px 12px 48px;
+    border: 0;
+    outline: 0;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    letter-spacing: 0;
+    tab-size: 2;
+    -moz-tab-size: 2;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .editor-wrap pre {
+    overflow: hidden;
+    pointer-events: none;
+    color: #d7dce5;
+    z-index: 0;
+  }
+
+  .editor-wrap textarea {
+    overflow: auto;
+    resize: none;
+    background: transparent;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    caret-color: #7ee787;
+    z-index: 1;
+  }
+  .editor-wrap textarea::selection      { background: rgba(88,140,255,.35); }
+  .editor-wrap textarea::-moz-selection { background: rgba(88,140,255,.35); }
+
+  /* ---------- Token-Farben ---------- */
+  .t-comment { color: #6e7681; font-style: italic; }
+  .t-tag     { color: #7ee787; }
+  .t-attr    { color: #79c0ff; }
+  .t-str     { color: #a5d6ff; }
+  .t-punct   { color: #7d8590; }
+  .t-meta    { color: #7d8590; }
+  .t-kw      { color: #ff7b72; }
+  .t-num     { color: #79c0ff; }
+  .t-sel     { color: #d2a8ff; }
+  .t-prop    { color: #79c0ff; }
+  .t-val     { color: #c9d1d9; }
+  .t-id      { color: #e6edf3; }
+  .t-op      { color: #8b949e; }
+
+  /* ---------- Drag & Drop Overlay ---------- */
+  .drop-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 14, 22, .82);
+    border: 3px dashed #3b82f6;
+    color: #93c5fd;
+    font-size: 18px;
+    font-weight: 600;
+    z-index: 100;
+    pointer-events: none;
+    text-align: center;
+    padding: 20px;
+  }
+  .drop-overlay.show { display: flex; }
+
+  /* ---------- Toast ---------- */
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translate(-50%, 20px);
+    background: #1d2433;
+    color: #e6edf3;
+    border: 1px solid #2f3a4d;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 200;
+    max-width: 90vw;
+    text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 640px) {
+    .editor-wrap pre,
+    .editor-wrap textarea { font-size: 16px; }
+    button { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button id="btnOpen">Öffnen</button>
+  <button id="btnPaste">Einfügen</button>
+  <button id="btnCopy">Kopieren</button>
+  <button id="btnFormat">Format</button>
+  <button id="btnFind">Suchen</button>
+  <button id="btnDownload" class="primary">Download</button>
+</div>
+
+<div class="findbar" id="findbar" hidden>
+  <input id="findInput" type="text" placeholder="Suchen …" autocomplete="off" spellcheck="false">
+  <input id="replaceInput" type="text" placeholder="Ersetzen …" autocomplete="off" spellcheck="false">
+  <button id="btnFindNext">Weiter</button>
+  <button id="btnReplace">Ersetzen</button>
+  <button id="btnReplaceAll">Alle</button>
+  <button id="btnCloseFind">✕</button>
+</div>
+
+<div class="editor-wrap" id="editorWrap">
+  <pre id="hl" aria-hidden="true"></pre>
+  <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Code-Editor"></textarea>
+</div>
+
+<input type="file" id="fileInput" accept=".html,.htm,.css,.js,.txt,text/*" hidden>
+<div class="drop-overlay" id="dropOverlay">Datei hier ablegen</div>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     Hilfsfunktionen
+     ===================================================================== */
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function sp(cls, text) {
+    return '<span class="t-' + cls + '">' + esc(text) + '</span>';
+  }
+
+  /* =====================================================================
+     Syntax-Highlighting: CSS
+     ===================================================================== */
+  const CSS_RE = /\/\*[\s\S]*?\*\/|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|#[0-9a-fA-F]{3,8}\b|@[-\w]+|[{}:;(),]|\d+(?:\.\d+)?(?:[a-z%]+)?|[.#][-\w]+|[-\w]+/g;
+
+  function highlightCSS(code) {
+    let out = '', pos = 0, m;
+    CSS_RE.lastIndex = 0;
+    while ((m = CSS_RE.exec(code))) {
+      if (m.index > pos) out += esc(code.slice(pos, m.index));
+      const t = m[0];
+      let cls;
+      if (t.charCodeAt(0) === 47 && t[1] === '*')          cls = 'comment';
+      else if (t[0] === '"' || t[0] === "'")               cls = 'str';
+      else if (t[0] === '@')                               cls = 'kw';
+      else if (t[0] === '#' && t.length > 1 && /^#[0-9a-fA-F]{3,8}$/.test(t)) cls = 'num';
+      else if ((t[0] === '.' || t[0] === '#') && t.length > 1) cls = 'sel';
+      else if (t.length === 1 && '{}:;(),'.indexOf(t) !== -1)  cls = 'punct';
+      else if (/^\d/.test(t))                              cls = 'num';
+      else cls = /^\s*:/.test(code.slice(m.index + t.length)) ? 'prop' : 'val';
+      out += sp(cls, t);
+      pos = m.index + t.length;
+    }
+    if (pos < code.length) out += esc(code.slice(pos));
+    return out;
+  }
+
+  /* =====================================================================
+     Syntax-Highlighting: JavaScript
+     ===================================================================== */
+  const JS_KEYWORDS = new Set((
+    'const let var function return if else for while do switch case default break continue ' +
+    'new class extends super this typeof instanceof in of delete void try catch finally throw ' +
+    'async await yield import export from null undefined true false NaN Infinity static get set'
+  ).split(' '));
+
+  const JS_RE = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|`(?:\\[\s\S]|[^`\\])*`|"(?:\\[\s\S]|[^"\\\n])*"|'(?:\\[\s\S]|[^'\\\n])*'|\d+(?:\.\d+)?(?:e[+-]?\d+)?|[A-Za-z_$][\w$]*|[{}()[\];,.]|[+\-*/%=<>!&|^~?:]+/g;
+
+  function highlightJS(code) {
+    let out = '', pos = 0, m;
+    JS_RE.lastIndex = 0;
+    while ((m = JS_RE.exec(code))) {
+      if (m.index > pos) out += esc(code.slice(pos, m.index));
+      const t = m[0];
+      let cls;
+      if (t[0] === '/' && (t[1] === '/' || t[1] === '*'))     cls = 'comment';
+      else if (t[0] === '"' || t[0] === "'" || t[0] === '`')  cls = 'str';
+      else if (/^\d/.test(t))                                 cls = 'num';
+      else if (/^[A-Za-z_$]/.test(t))                         cls = JS_KEYWORDS.has(t) ? 'kw' : 'id';
+      else if (t.length === 1 && '{}()[];,.:'.indexOf(t) !== -1) cls = 'punct';
+      else cls = 'op';
+      out += sp(cls, t);
+      pos = m.index + t.length;
+    }
+    if (pos < code.length) out += esc(code.slice(pos));
+    return out;
+  }
+
+  /* =====================================================================
+     Syntax-Highlighting: HTML (mit eingebettetem CSS/JS)
+     ===================================================================== */
+  function colorizeTag(tag) {
+    let out = '', i = 0;
+    const n = tag.length;
+
+    if (tag.startsWith('</')) { out += sp('punct', '</'); i = 2; }
+    else                      { out += sp('punct', '<');  i = 1; }
+
+    const m = /^[a-zA-Z][\w:-]*/.exec(tag.slice(i));
+    if (m) { out += sp('tag', m[0]); i += m[0].length; }
+
+    while (i < n) {
+      const c = tag[i];
+      if (c === '>')       { out += sp('punct', '>'); i++; }
+      else if (c === '/')  { out += sp('punct', '/'); i++; }
+      else if (c === '=')  { out += sp('punct', '='); i++; }
+      else if (c === '"' || c === "'") {
+        const e = tag.indexOf(c, i + 1);
+        const end = e === -1 ? n : e + 1;
+        out += sp('str', tag.slice(i, end));
+        i = end;
+      }
+      else if (/\s/.test(c)) { out += esc(c); i++; }
+      else {
+        let j = i;
+        while (j < n && !/[\s=>"'\/]/.test(tag[j])) j++;
+        if (j === i) j = i + 1;
+        out += sp('attr', tag.slice(i, j));
+        i = j;
+      }
+    }
+    return out;
+  }
+
+  function highlightHTML(code) {
+    let out = '', i = 0;
+    const n = code.length;
+
+    while (i < n) {
+      const lt = code.indexOf('<', i);
+      if (lt === -1) { out += esc(code.slice(i)); break; }
+      if (lt > i) out += esc(code.slice(i, lt));
+
+      /* Kommentar */
+      if (code.startsWith('<!--', lt)) {
+        const e = code.indexOf('-->', lt + 4);
+        const end = e === -1 ? n : e + 3;
+        out += sp('comment', code.slice(lt, end));
+        i = end;
+        continue;
+      }
+
+      /* Doctype / <! ... > */
+      if (code.startsWith('<!', lt)) {
+        const e = code.indexOf('>', lt);
+        const end = e === -1 ? n : e + 1;
+        out += sp('meta', code.slice(lt, end));
+        i = end;
+        continue;
+      }
+
+      /* Tag-Anfang */
+      const m = /^<(\/?)([a-zA-Z][\w:-]*)/.exec(code.slice(lt, lt + 200));
+      if (!m) { out += esc('<'); i = lt + 1; continue; }
+
+      /* Tag-Ende suchen (Anführungszeichen beachten) */
+      let j = lt + m[0].length, q = null, end = -1;
+      while (j < n) {
+        const c = code[j];
+        if (q) { if (c === q) q = null; }
+        else if (c === '"' || c === "'") q = c;
+        else if (c === '>') { end = j; break; }
+        j++;
+      }
+      if (end === -1) { out += esc(code.slice(lt)); break; }
+
+      out += colorizeTag(code.slice(lt, end + 1));
+      i = end + 1;
+
+      /* Eingebettetes <style> / <script> */
+      const name = m[2].toLowerCase();
+      if (!m[1] && (name === 'style' || name === 'script')) {
+        const rest = code.slice(i);
+        const cm = new RegExp('</' + name + '\\s*>', 'i').exec(rest);
+        const inner = cm ? rest.slice(0, cm.index) : rest;
+        out += (name === 'style') ? highlightCSS(inner) : highlightJS(inner);
+        i += inner.length;
+      }
+    }
+    return out;
+  }
+
+  /* Automatische Spracherkennung */
+  function highlight(code) {
+    const t = code.trim();
+    if (t && t.indexOf('<') === -1) {
+      if (/\b(function|const|let|var|return)\b|=>/.test(t)) return highlightJS(code);
+      if (/[{}]/.test(t) && t.indexOf(':') !== -1)          return highlightCSS(code);
+      return highlightJS(code);
+    }
+    return highlightHTML(code);
+  }
+
+  /* =====================================================================
+     Pretty-Format: CSS
+     ===================================================================== */
+  function formatCSS(src) {
+    let out = '', indent = 0, i = 0;
+    const n = src.length;
+    let atLineStart = true;
+
+    const pad  = () => '  '.repeat(indent);
+    const write = (s) => { if (atLineStart) { out += pad(); atLineStart = false; } out += s; };
+    const nl    = () => { out = out.replace(/[ \t]+$/, '') + '\n'; atLineStart = true; };
+
+    while (i < n) {
+      const c = src[i];
+
+      if (c === '/' && src[i + 1] === '*') {
+        const e = src.indexOf('*/', i + 2);
+        const end = e === -1 ? n : e + 2;
+        write(src.slice(i, end)); nl(); i = end; continue;
+      }
+      if (c === '"' || c === "'") {
+        let j = i + 1;
+        while (j < n && src[j] !== c) { if (src[j] === '\\') j++; j++; }
+        write(src.slice(i, j + 1)); i = j + 1; continue;
+      }
+      if (/\s/.test(c)) {
+        let j = i;
+        while (j < n && /\s/.test(src[j])) j++;
+        if (j < n && '{};,'.indexOf(src[j]) === -1 && !atLineStart) write(' ');
+        i = j; continue;
+      }
+      if (c === '{') { write(' {'); nl(); indent++; i++; continue; }
+      if (c === '}') { nl(); indent = Math.max(0, indent - 1); write('}'); nl(); i++; continue; }
+      if (c === ';') { write(';'); nl(); i++; continue; }
+
+      write(c);
+      i++;
+    }
+    return out.replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  /* =====================================================================
+     Pretty-Format: JavaScript
+     ===================================================================== */
+  function formatJS(src) {
+    let out = '', indent = 0, i = 0, paren = 0;
+    const n = src.length;
+    let atLineStart = true;
+
+    const pad   = () => '  '.repeat(indent);
+    const write = (s) => { if (atLineStart) { out += pad(); atLineStart = false; } out += s; };
+    const nl    = () => { out = out.replace(/[ \t]+$/, '') + '\n'; atLineStart = true; };
+
+    while (i < n) {
+      const c = src[i];
+
+      if (c === '/' && src[i + 1] === '/') {
+        let j = src.indexOf('\n', i);
+        if (j === -1) j = n;
+        write(src.slice(i, j)); nl(); i = j; continue;
+      }
+      if (c === '/' && src[i + 1] === '*') {
+        const e = src.indexOf('*/', i + 2);
+        const end = e === -1 ? n : e + 2;
+        write(src.slice(i, end)); nl(); i = end; continue;
+      }
+      if (c === '"' || c === "'" || c === '`') {
+        let j = i + 1;
+        while (j < n && src[j] !== c) { if (src[j] === '\\') j++; j++; }
+        write(src.slice(i, j + 1)); i = j + 1; continue;
+      }
+      if (/\s/.test(c)) {
+        let j = i;
+        while (j < n && /\s/.test(src[j])) j++;
+        if (j < n && '};,)].'.indexOf(src[j]) === -1 && !atLineStart) write(' ');
+        i = j; continue;
+      }
+      if (c === '(') { paren++; write('('); i++; continue; }
+      if (c === ')') { paren = Math.max(0, paren - 1); write(')'); i++; continue; }
+
+      if (c === '{') { write(' {'); nl(); indent++; i++; continue; }
+
+      if (c === '}') {
+        nl();
+        indent = Math.max(0, indent - 1);
+        write('}');
+        /* Folgt direkt etwas Anhängendes? */
+        let j = i + 1;
+        while (j < n && /[ \t]/.test(src[j])) j++;
+        const nx = src[j];
+        const tail = src.slice(j, j + 8);
+        if (nx === ';' || nx === ',' || nx === ')' || nx === ']' || nx === '.' || nx === '(') {
+          /* gleiche Zeile weiter */
+        } else if (/^(else|catch|finally)\b/.test(tail)) {
+          write(' ');
+        } else {
+          nl();
+        }
+        i++;
+        continue;
+      }
+
+      if (c === ';' && paren === 0) { write(';'); nl(); i++; continue; }
+
+      write(c);
+      i++;
+    }
+    return out.replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  /* =====================================================================
+     Pretty-Format: HTML
+     ===================================================================== */
+  const VOID_TAGS = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '));
+
+  function collapseTag(t) {
+    let out = '', q = null;
+    for (let i = 0; i < t.length; i++) {
+      const c = t[i];
+      if (q) { out += c; if (c === q) q = null; }
+      else if (c === '"' || c === "'") { q = c; out += c; }
+      else if (c === '>') { out = out.replace(/\s+$/, '') + '>'; }
+      else if (/\s/.test(c)) { if (!/\s$/.test(out)) out += ' '; }
+      else out += c;
+    }
+    return out.trim();
+  }
+
+  function formatHTML(src) {
+    const out = [];
+    let indent = 0, i = 0;
+    const n = src.length;
+    const pad  = () => '  '.repeat(indent);
+    const push = (s) => out.push(pad() + s);
+
+    while (i < n) {
+      const lt = src.indexOf('<', i);
+      if (lt === -1) {
+        const text = src.slice(i).trim();
+        if (text) push(text);
+        break;
+      }
+      if (lt > i) {
+        const text = src.slice(i, lt).trim();
+        if (text) push(text);
+      }
+
+      /* Kommentar */
+      if (src.startsWith('<!--', lt)) {
+        const e = src.indexOf('-->', lt);
+        const end = e === -1 ? n : e + 3;
+        push(collapseTag(src.slice(lt, end)));
+        i = end; continue;
+      }
+      /* Doctype / <! ... > */
+      if (src.startsWith('<!', lt)) {
+        const e = src.indexOf('>', lt);
+        const end = e === -1 ? n : e + 1;
+        push(collapseTag(src.slice(lt, end)));
+        i = end; continue;
+      }
+
+      /* Tag-Ende suchen */
+      let j = lt + 1, q = null, end = -1;
+      while (j < n) {
+        const c = src[j];
+        if (q) { if (c === q) q = null; }
+        else if (c === '"' || c === "'") q = c;
+        else if (c === '>') { end = j; break; }
+        j++;
+      }
+      if (end === -1) {
+        const rest = src.slice(lt).trim();
+        if (rest) push(rest);
+        break;
+      }
+
+      const raw = src.slice(lt, end + 1);
+      const tm = /^<(\/?)([a-zA-Z][\w:-]*)/.exec(raw);
+      if (!tm) { push(collapseTag(raw)); i = end + 1; continue; }
+
+      const closing   = tm[1] === '/';
+      const name      = tm[2].toLowerCase();
+      const selfClose = /\/>$/.test(raw) || VOID_TAGS.has(name);
+
+      if (closing) {
+        indent = Math.max(0, indent - 1);
+        push(collapseTag(raw));
+        i = end + 1;
+        continue;
+      }
+
+      push(collapseTag(raw));
+      i = end + 1;
+
+      /* <style> / <script> Inhalt */
+      if (name === 'style' || name === 'script') {
+        const cm = new RegExp('</' + name + '\\s*>', 'i').exec(src.slice(i));
+        const inner = cm ? src.slice(i, i + cm.index) : src.slice(i);
+        const formatted = (name === 'style') ? formatCSS(inner) : formatJS(inner);
+        if (formatted.trim()) {
+          indent++;
+          formatted.split('\n').forEach(line => {
+            out.push(line.trim() ? pad() + line : '');
+          });
+          indent--;
+        }
+        i += inner.length;
+        continue;
+      }
+
+      if (!selfClose) indent++;
+    }
+
+    return out.join('\n');
+  }
+
+  function formatDoc(src) {
+    const t = src.trim();
+    if (!t) return src;
+    if (t.indexOf('<') !== -1) return formatHTML(src);
+    if (/\b(function|const|let|var|return)\b|=>/.test(t)) return formatJS(src);
+    if (/\{[\s\S]*:[\s\S]*\}/.test(t)) return formatCSS(src);
+    return formatJS(src);
+  }
+
+  /* =====================================================================
+     Editor-Aufbau
+     ===================================================================== */
+  const editor     = document.getElementById('editor');
+  const hlEl       = document.getElementById('hl');
+  const editorWrap = document.getElementById('editorWrap');
+  const findbar    = document.getElementById('findbar');
+  const findInput  = document.getElementById('findInput');
+  const replaceInput = document.getElementById('replaceInput');
+  const fileInput  = document.getElementById('fileInput');
+  const dropOverlay = document.getElementById('dropOverlay');
+
+  let rafPending = false;
+
+  function syncScroll() {
+    hlEl.scrollTop  = editor.scrollTop;
+    hlEl.scrollLeft = editor.scrollLeft;
+  }
+
+  function updateHighlight() {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      hlEl.innerHTML = highlight(editor.value) + '\n';
+      syncScroll();
+    });
+  }
+
+  function setValue(text) {
+    editor.value = text;
+    editor.scrollTop = 0;
+    editor.scrollLeft = 0;
+    editor.setSelectionRange(0, 0);
+    updateHighlight();
+  }
+
+  function insertText(text) {
+    editor.focus();
+    let ok = false;
+    try { ok = document.execCommand('insertText', false, text); } catch (e) { ok = false; }
+    if (!ok) {
+      const s = editor.selectionStart, e = editor.selectionEnd;
+      editor.value = editor.value.slice(0, s) + text + editor.value.slice(e);
+      editor.setSelectionRange(s + text.length, s + text.length);
+    }
+    updateHighlight();
+  }
+
+  /* =====================================================================
+     Toast
+     ===================================================================== */
+  let toastTimer;
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 1900);
+  }
+
+  /* =====================================================================
+     Buttons
+     ===================================================================== */
+  document.getElementById('btnOpen').addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    const f = fileInput.files && fileInput.files[0];
+    if (f) loadFile(f);
+    fileInput.value = '';
+  });
+
+  document.getElementById('btnCopy').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(editor.value);
+      toast('In Zwischenablage kopiert');
+    } catch (e) {
+      editor.focus();
+      editor.select();
+      try {
+        document.execCommand('copy');
+        toast('In Zwischenablage kopiert');
+      } catch (err) {
+        toast('Kopieren fehlgeschlagen');
+      }
+      editor.setSelectionRange(0, 0);
+    }
+  });
+
+  document.getElementById('btnPaste').addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) { insertText(text); toast('Eingefügt'); }
+    } catch (e) {
+      editor.focus();
+      toast('Bitte Strg+V / ⌘+V im Editor nutzen');
+    }
+  });
+
+  document.getElementById('btnDownload').addEventListener('click', () => {
+    const blob = new Blob([editor.value], { type: 'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = 'index.html';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast('Download gestartet');
+  });
+
+  document.getElementById('btnFormat').addEventListener('click', () => {
+    const before = editor.value;
+    if (!before.trim()) return;
+    const after = formatDoc(before);
+    if (after === before) { toast('Bereits formatiert'); return; }
+    setValue(after);
+    toast('Formatiert');
+  });
+
+  document.getElementById('btnFind').addEventListener('click', () => {
+    const open = findbar.hidden;
+    findbar.hidden = !open;
+    if (open) {
+      const sel = editor.value.slice(editor.selectionStart, editor.selectionEnd);
+      if (sel && sel.indexOf('\n') === -1) findInput.value = sel;
+      findInput.focus();
+      findInput.select();
+    }
+  });
+
+  document.getElementById('btnCloseFind').addEventListener('click', () => {
+    findbar.hidden = true;
+    editor.focus();
+  });
+
+  document.getElementById('btnFindNext').addEventListener('click', findNext);
+  document.getElementById('btnReplace').addEventListener('click', replaceCurrent);
+  document.getElementById('btnReplaceAll').addEventListener('click', replaceAll);
+
+  findInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); findNext(); }
+  });
+  replaceInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); replaceCurrent(); }
+  });
+
+  /* =====================================================================
+     Suchen & Ersetzen
+     ===================================================================== */
+  function scrollToIndex(idx) {
+    const before = editor.value.slice(0, idx);
+    const line = (before.match(/\n/g) || []).length;
+    const cs = getComputedStyle(editor);
+    const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 14) * 1.55;
+    const target = line * lh - editor.clientHeight / 2 + lh;
+    editor.scrollTop = Math.max(0, target);
+    syncScroll();
+  }
+
+  function findNext() {
+    const q = findInput.value;
+    if (!q) { findInput.focus(); return; }
+    const hay = editor.value.toLowerCase();
+    const needle = q.toLowerCase();
+    let idx = hay.indexOf(needle, editor.selectionEnd);
+    if (idx === -1) idx = hay.indexOf(needle, 0);
+    if (idx === -1) { toast('Nicht gefunden'); return; }
+    editor.focus();
+    editor.setSelectionRange(idx, idx + q.length);
+    scrollToIndex(idx);
+  }
+
+  function replaceCurrent() {
+    const q = findInput.value;
+    if (!q) { findInput.focus(); return; }
+    const sel = editor.value.slice(editor.selectionStart, editor.selectionEnd);
+    if (sel.toLowerCase() === q.toLowerCase()) {
+      editor.focus();
+      let ok = false;
+      try { ok = document.execCommand('insertText', false, replaceInput.value); } catch (e) { ok = false; }
+      if (!ok) {
+        const s = editor.selectionStart;
+        editor.value = editor.value.slice(0, s) + replaceInput.value +
+                       editor.value.slice(editor.selectionEnd);
+        editor.setSelectionRange(s + replaceInput.value.length, s + replaceInput.value.length);
+      }
+      updateHighlight();
+    }
+    findNext();
+  }
+
+  function replaceAll() {
+    const q = findInput.value;
+    if (!q) { findInput.focus(); return; }
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(escaped, 'gi');
+    const before = editor.value;
+    const matches = before.match(re);
+    if (!matches) { toast('Nicht gefunden'); return; }
+    const after = before.replace(re, () => replaceInput.value);
+    setValue(after);
+    toast(matches.length + ' Ersetzung' + (matches.length === 1 ? '' : 'en'));
+  }
+
+  /* =====================================================================
+     Datei laden / Drag & Drop
+     ===================================================================== */
+  function loadFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setValue(String(reader.result));
+      toast('Geladen: ' + file.name);
+    };
+    reader.onerror = () => toast('Datei konnte nicht gelesen werden');
+    reader.readAsText(file);
+  }
+
+  let dragCounter = 0;
+
+  document.addEventListener('dragenter', e => {
+    if (!e.dataTransfer) return;
+    const types = Array.from(e.dataTransfer.types || []);
+    if (types.indexOf('Files') === -1) return;
+    e.preventDefault();
+    dragCounter++;
+    dropOverlay.classList.add('show');
+  });
+
+  document.addEventListener('dragover', e => e.preventDefault());
+
+  document.addEventListener('dragleave', () => {
+    dragCounter--;
+    if (dragCounter <= 0) { dragCounter = 0; dropOverlay.classList.remove('show'); }
+  });
+
+  document.addEventListener('drop', e => {
+    e.preventDefault();
+    dragCounter = 0;
+    dropOverlay.classList.remove('show');
+    if (!e.dataTransfer) return;
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) { loadFile(f); return; }
+    const text = e.dataTransfer.getData('text/plain');
+    if (text) { insertText(text); toast('Text eingefügt'); }
+  });
+
+  /* =====================================================================
+     Editor-Events
+     ===================================================================== */
+  editor.addEventListener('input', updateHighlight);
+  editor.addEventListener('scroll', syncScroll, { passive: true });
+
+  editor.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      insertText('  ');
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+      e.preventDefault();
+      document.getElementById('btnFind').click();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      document.getElementById('btnDownload').click();
+      return;
+    }
+    if (e.key === 'Escape' && !findbar.hidden) {
+      findbar.hidden = true;
+      editor.focus();
+    }
+  });
+
+  window.addEventListener('resize', syncScroll);
+
+  /* =====================================================================
+     Beispielinhalt
+     ===================================================================== */
+  const SAMPLE = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meine Seite</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #111; color: #eee; }
+    h1 { color: #7ee787; }
+    .box { padding: 1rem; border-radius: 8px; background: #1c1f26; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Hallo Welt</h1>
+    <p>Bearbeite mich nach Lust und Laune.</p>
+  </div>
+  <script>
+    // Kleines Beispiel
+    const greet = (name) => {
+      console.log('Hallo, ' + name + '!');
+    };
+    greet('Welt');
+  <\/script>
+</body>
+</html>`;
+
+  // setValue(SAMPLE);
+})();
+</script>
+</body>
+</html>
