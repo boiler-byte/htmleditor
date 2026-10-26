@@ -35,15 +35,19 @@
     border-bottom: 1px solid #232833;
   }
 
-  button {
+  /* ---------- Dropdown ---------- */
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .dropdown-toggle {
     -webkit-tap-highlight-color: transparent;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 6px;
     font: inherit;
-    font-size: 16px;
-    padding: 7px 10px;
-    min-width: 38px;
+    font-size: 14px;
+    padding: 7px 12px;
     min-height: 36px;
     color: #cfd6e4;
     background: #1d2230;
@@ -54,15 +58,56 @@
     white-space: nowrap;
     line-height: 1;
   }
-  button i { font-size: 1.15rem; line-height: 1; }
-  button:hover  { background: #262d3e; }
-  button:active { background: #323b50; }
-  button.primary {
-    background: #1f4b8f;
-    border-color: #2f66bd;
-    color: #eaf1ff;
+  .dropdown-toggle i { font-size: 1.15rem; line-height: 1; }
+  .dropdown-toggle .caret { font-size: 0.75rem; margin-left: 2px; opacity: 0.7; }
+  .dropdown-toggle:hover  { background: #262d3e; }
+  .dropdown-toggle:active { background: #323b50; }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 220px;
+    background: #1d2230;
+    border: 1px solid #2b3242;
+    border-radius: 8px;
+    padding: 5px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.45);
+    z-index: 50;
+    display: none;
   }
-  button.primary:hover { background: #275aa8; }
+  .dropdown.open .dropdown-menu { display: block; }
+
+  .dropdown-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    font: inherit;
+    font-size: 13.5px;
+    text-align: left;
+    padding: 8px 10px;
+    color: #cfd6e4;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1;
+    min-height: 34px;
+  }
+  .dropdown-menu button i { font-size: 1.05rem; width: 20px; text-align: center; }
+  .dropdown-menu button:hover { background: #2a3142; }
+  .dropdown-menu button .check {
+    margin-left: auto;
+    color: #7ee787;
+    font-size: 1rem;
+  }
+  .dropdown-menu .sep {
+    height: 1px;
+    background: #2b3242;
+    margin: 5px 4px;
+  }
 
   /* ---------- Suchleiste ---------- */
   .findbar input {
@@ -78,7 +123,27 @@
     outline: none;
   }
   .findbar input:focus { border-color: #3b82f6; }
-  .findbar button { min-width: 36px; min-height: 34px; padding: 6px 8px; }
+  .findbar button {
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: inherit;
+    font-size: 14px;
+    padding: 6px 8px;
+    min-width: 36px;
+    min-height: 34px;
+    color: #cfd6e4;
+    background: #1d2230;
+    border: 1px solid #2b3242;
+    border-radius: 7px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .findbar button i { font-size: 1.05rem; line-height: 1; }
+  .findbar button:hover { background: #262d3e; }
 
   /* ---------- Editor ---------- */
   .editor-wrap {
@@ -87,10 +152,41 @@
     min-height: 0;
     overflow: hidden;
     background: #0f1116;
+    display: flex;
   }
 
-  .editor-wrap pre,
-  .editor-wrap textarea {
+  /* Zeilennummern */
+  .gutter {
+    flex: 0 0 auto;
+    width: 48px;
+    overflow: hidden;
+    background: #0c0e13;
+    border-right: 1px solid #232833;
+    position: relative;
+    z-index: 2;
+  }
+  .gutter pre {
+    margin: 0;
+    padding: 12px 8px 48px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    text-align: right;
+    color: #4b5566;
+    white-space: pre;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .code-area {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .code-area pre,
+  .code-area textarea {
     position: absolute;
     inset: 0;
     margin: 0;
@@ -108,14 +204,14 @@
     word-break: normal;
   }
 
-  .editor-wrap pre {
+  .code-area pre {
     overflow: hidden;
     pointer-events: none;
     color: #d7dce5;
     z-index: 0;
   }
 
-  .editor-wrap textarea {
+  .code-area textarea {
     overflow: auto;
     resize: none;
     background: transparent;
@@ -124,8 +220,8 @@
     caret-color: #7ee787;
     z-index: 1;
   }
-  .editor-wrap textarea::selection      { background: rgba(88,140,255,.35); }
-  .editor-wrap textarea::-moz-selection { background: rgba(88,140,255,.35); }
+  .code-area textarea::selection      { background: rgba(88,140,255,.35); }
+  .code-area textarea::-moz-selection { background: rgba(88,140,255,.35); }
 
   /* ---------- Token-Farben ---------- */
   .t-comment { color: #6e7681; font-style: italic; }
@@ -184,35 +280,77 @@
 
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
-    .editor-wrap pre,
-    .editor-wrap textarea { font-size: 16px; }
-    button { padding: 8px 10px; }
+    .code-area pre,
+    .code-area textarea,
+    .gutter pre { font-size: 16px; }
+    .dropdown-toggle { padding: 8px 10px; }
+    .gutter { width: 42px; }
   }
 </style>
 </head>
 <body>
 
 <div class="toolbar">
-  <button id="btnOpen" title="Datei öffnen" aria-label="Datei öffnen">
-    <i class="bi bi-folder2-open" aria-hidden="true"></i>
-  </button>
-  <button id="btnPaste" title="Aus Zwischenablage einfügen" aria-label="Aus Zwischenablage einfügen">
-    Einfügen
-  </button>
-  <button id="btnCopy" title="Kopieren" aria-label="Kopieren">
-    <i class="bi bi-clipboard" aria-hidden="true"></i>
-  </button>
-  <button id="btnFormat" title="Formatieren" aria-label="Formatieren">
-    <i class="bi bi-magic" aria-hidden="true"></i>
-  </button>
-  <button id="btnFind" title="Suchen und Ersetzen" aria-label="Suchen und Ersetzen">
-    <i class="bi bi-search" aria-hidden="true"></i>
-  </button>
-  <button id="btnDownload" class="primary" title="Als HTML herunterladen" aria-label="Als HTML herunterladen">
-    <i class="bi bi-download" aria-hidden="true"></i>
-  </button>
-  <button id="btnShare">
-    <i class="bi bi-share" aria-hidden="true"></i></button>
+  <!-- Dropdown: Datei -->
+  <div class="dropdown" id="ddFile">
+    <button class="dropdown-toggle" id="ddFileToggle" aria-haspopup="true" aria-expanded="false">
+      <i class="bi bi-folder2-open" aria-hidden="true"></i>
+      <span>Datei</span>
+      <i class="bi bi-chevron-down caret" aria-hidden="true"></i>
+    </button>
+    <div class="dropdown-menu" role="menu" aria-labelledby="ddFileToggle">
+      <button id="btnOpen" role="menuitem">
+        <i class="bi bi-folder2-open" aria-hidden="true"></i>
+        <span>Datei öffnen</span>
+      </button>
+      <button id="btnPaste" role="menuitem">
+        <i class="bi bi-clipboard-plus" aria-hidden="true"></i>
+        <span>Einfügen</span>
+      </button>
+      <button id="btnPasteReplace" role="menuitem">
+        <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+        <span>Einfügen &amp; Ersetzen</span>
+      </button>
+      <button id="btnCopy" role="menuitem">
+        <i class="bi bi-clipboard" aria-hidden="true"></i>
+        <span>Kopieren</span>
+      </button>
+      <div class="sep" role="separator"></div>
+      <button id="btnDownload" role="menuitem">
+        <i class="bi bi-download" aria-hidden="true"></i>
+        <span>Download</span>
+      </button>
+      <button id="btnShare" role="menuitem">
+        <i class="bi bi-share" aria-hidden="true"></i>
+        <span>Teilen</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Dropdown: Bearbeiten -->
+  <div class="dropdown" id="ddEdit">
+    <button class="dropdown-toggle" id="ddEditToggle" aria-haspopup="true" aria-expanded="false">
+      <i class="bi bi-pencil-square" aria-hidden="true"></i>
+      <span>Bearbeiten</span>
+      <i class="bi bi-chevron-down caret" aria-hidden="true"></i>
+    </button>
+    <div class="dropdown-menu" role="menu" aria-labelledby="ddEditToggle">
+      <button id="btnFind" role="menuitem">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <span>Suchen/Ersetzen</span>
+      </button>
+      <button id="btnFormat" role="menuitem">
+        <i class="bi bi-magic" aria-hidden="true"></i>
+        <span>Formatieren</span>
+      </button>
+      <div class="sep" role="separator"></div>
+      <button id="btnLineNumbers" role="menuitemcheckbox" aria-checked="false">
+        <i class="bi bi-list-ol" aria-hidden="true"></i>
+        <span>Zeilennummern anzeigen</span>
+        <i class="bi bi-check-lg check" hidden aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="findbar" id="findbar" hidden>
@@ -233,8 +371,13 @@
 </div>
 
 <div class="editor-wrap" id="editorWrap">
-  <pre id="hl" aria-hidden="true"></pre>
-  <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Code-Editor"></textarea>
+  <div class="gutter" id="gutter" hidden>
+    <pre id="lineNumbers" aria-hidden="true"></pre>
+  </div>
+  <div class="code-area" id="codeArea">
+    <pre id="hl" aria-hidden="true"></pre>
+    <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Code-Editor"></textarea>
+  </div>
 </div>
 
 <input type="file" id="fileInput" accept=".html,.htm,.css,.js,.txt,text/*" hidden>
@@ -647,20 +790,35 @@
   /* =====================================================================
      Editor-Aufbau
      ===================================================================== */
-  const editor     = document.getElementById('editor');
-  const hlEl       = document.getElementById('hl');
-  const editorWrap = document.getElementById('editorWrap');
-  const findbar    = document.getElementById('findbar');
-  const findInput  = document.getElementById('findInput');
+  const editor       = document.getElementById('editor');
+  const hlEl         = document.getElementById('hl');
+  const editorWrap   = document.getElementById('editorWrap');
+  const findbar      = document.getElementById('findbar');
+  const findInput    = document.getElementById('findInput');
   const replaceInput = document.getElementById('replaceInput');
-  const fileInput  = document.getElementById('fileInput');
-  const dropOverlay = document.getElementById('dropOverlay');
+  const fileInput    = document.getElementById('fileInput');
+  const dropOverlay  = document.getElementById('dropOverlay');
+  const gutter       = document.getElementById('gutter');
+  const lineNumbers  = document.getElementById('lineNumbers');
 
   let rafPending = false;
+  let showLineNumbers = false;
 
   function syncScroll() {
     hlEl.scrollTop  = editor.scrollTop;
     hlEl.scrollLeft = editor.scrollLeft;
+    if (showLineNumbers) {
+      lineNumbers.scrollTop = editor.scrollTop;
+    }
+  }
+
+  function updateLineNumbers() {
+    if (!showLineNumbers) return;
+    const count = editor.value.split('\n').length;
+    let s = '';
+    for (let i = 1; i <= count; i++) s += i + '\n';
+    lineNumbers.textContent = s;
+    lineNumbers.scrollTop = editor.scrollTop;
   }
 
   function updateHighlight() {
@@ -669,6 +827,7 @@
     requestAnimationFrame(() => {
       rafPending = false;
       hlEl.innerHTML = highlight(editor.value) + '\n';
+      if (showLineNumbers) updateLineNumbers();
       syncScroll();
     });
   }
@@ -692,6 +851,47 @@
     }
     updateHighlight();
   }
+
+  /* =====================================================================
+     Dropdown-Logik
+     ===================================================================== */
+  const dropdowns = Array.from(document.querySelectorAll('.dropdown'));
+
+  function closeAllDropdowns(except) {
+    dropdowns.forEach(dd => {
+      if (dd !== except) {
+        dd.classList.remove('open');
+        dd.querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  dropdowns.forEach(dd => {
+    const toggle = dd.querySelector('.dropdown-toggle');
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !dd.classList.contains('open');
+      closeAllDropdowns(dd);
+      dd.classList.toggle('open', willOpen);
+      toggle.setAttribute('aria-expanded', String(willOpen));
+    });
+
+    // Klicks im Menü schließen es (außer bei verschachtelten Aktionen)
+    dd.querySelector('.dropdown-menu').addEventListener('click', (e) => {
+      // Wenn auf einen Menüpunkt geklickt wurde, schließen
+      if (e.target.closest('button')) {
+        closeAllDropdowns();
+      }
+    });
+  });
+
+  // Klick außerhalb schließt Dropdowns
+  document.addEventListener('click', () => closeAllDropdowns());
+
+  // Escape schließt Dropdowns
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAllDropdowns();
+  });
 
   /* =====================================================================
      Toast
@@ -733,15 +933,60 @@
     }
   });
 
-  document.getElementById('btnPaste').addEventListener('click', async () => {
+  /* Hilfsfunktion: Inhalt aus Zwischenablage (Text oder Datei) einfügen */
+  async function pasteFromClipboard(replace) {
     try {
+      // Versuche zuerst, Dateien zu lesen
+      if (navigator.clipboard.read) {
+        try {
+          const items = await navigator.clipboard.read();
+          console.log( items );
+          for (const item of items) {
+            const fileTypes = item.types.filter(t => !t.startsWith('text/'));
+            if (fileTypes.length > 0) {
+              const fileType = fileTypes[0];
+              const blob = await item.getType(fileType);
+              if (blob.size <= 1024 * 1024) { // 1 MB
+                const text = await blob.text();
+                if (replace) {
+                  setValue(text);
+                  toast('Datei eingefügt (ersetzt)');
+                } else {
+                  insertText(text);
+                  toast('Datei eingefügt');
+                }
+                return;
+              } else {
+                toast('Datei zu groß (max. 1 MB)');
+                return;
+              }
+            }
+          }
+        } catch (e) {
+          // Fallback auf readText
+        }
+      }
+      // Fallback: Nur Text
       const text = await navigator.clipboard.readText();
-      if (text) { insertText(text); toast('Eingefügt'); }
+      if (text) {
+        if (replace) {
+          setValue(text);
+          toast('Eingefügt (ersetzt)');
+        } else {
+          insertText(text);
+          toast('Eingefügt');
+        }
+      } else {
+        toast('Zwischenablage ist leer');
+      }
     } catch (e) {
       editor.focus();
       toast('Bitte Strg+V / ⌘+V im Editor nutzen');
     }
-  });
+  }
+
+  document.getElementById('btnPaste').addEventListener('click', () => pasteFromClipboard(false));
+  document.getElementById('btnPasteReplace').addEventListener('click', () => pasteFromClipboard(true));
 
   document.getElementById('btnDownload').addEventListener('click', () => {
     const blob = new Blob([editor.value], { type: 'text/html;charset=utf-8' });
@@ -790,6 +1035,31 @@
   });
   replaceInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); replaceCurrent(); }
+  });
+
+  /* =====================================================================
+     Zeilennummern
+     ===================================================================== */
+  const btnLineNumbers = document.getElementById('btnLineNumbers');
+  const lineNumberCheck = btnLineNumbers.querySelector('.check');
+
+  function toggleLineNumbers() {
+    showLineNumbers = !showLineNumbers;
+    gutter.hidden = !showLineNumbers;
+    btnLineNumbers.setAttribute('aria-checked', String(showLineNumbers));
+    lineNumberCheck.hidden = !showLineNumbers;
+    if (showLineNumbers) {
+      updateLineNumbers();
+      syncScroll();
+    }
+    toast(showLineNumbers ? 'Zeilennummern an' : 'Zeilennummern aus');
+  }
+
+  btnLineNumbers.addEventListener('click', (e) => {
+    e.stopPropagation(); // Dropdown nicht schließen durch Button-Klick (wird extern gehandhabt)
+    toggleLineNumbers();
+    // Dropdown schließen nach Aktion
+    closeAllDropdowns();
   });
 
   /* =====================================================================
@@ -922,63 +1192,31 @@
 
   window.addEventListener('resize', syncScroll);
 
-  /* =====================================================================
-     Beispielinhalt
-     ===================================================================== */
-  const SAMPLE = `<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meine Seite</title>
-  <style>
-    body { margin: 0; font-family: system-ui, sans-serif; background: #111; color: #eee; }
-    h1 { color: #7ee787; }
-    .box { padding: 1rem; border-radius: 8px; background: #1c1f26; }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <h1>Hallo Welt</h1>
-    <p>Bearbeite mich nach Lust und Laune.</p>
-  </div>
-  <script>
-    // Kleines Beispiel
-    const greet = (name) => {
-      console.log('Hallo, ' + name + '!');
-    };
-    greet('Welt');
-  <\/script>
-</body>
-</html>`;
+
 
   document.getElementById('btnShare').addEventListener('click', async () => {
-  const fileName = 'index.html';
-  const blob = new Blob([editor.value], { type: 'text/html;charset=utf-8' });
-  const file = new File([blob], fileName, { type: 'text/html' });
+    const fileName = 'index.html';
+    const blob = new Blob([editor.value], { type: 'text/html;charset=utf-8' });
+    const file = new File([blob], fileName, { type: 'text/html' });
 
-  // Prüfen, ob der Browser das Teilen von Dateien unterstützt
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      // Wichtig: Nur die Datei übergeben (kein text/title), 
-      // um WhatsApp-Probleme auf iOS zu vermeiden.
-      await navigator.share({ files: [file] });
-      toast('Teilen-Menü geöffnet');
-    } catch (err) {
-      // Abbruch durch den Nutzer (AbortError) ist kein Fehler
-      if (err.name !== 'AbortError') {
-        console.error('Teilen fehlgeschlagen:', err);
-        toast('Teilen fehlgeschlagen – nutze Download');
-        // Fallback: Download auslösen
-        document.getElementById('btnDownload').click();
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+        toast('Teilen-Menü geöffnet');
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Teilen fehlgeschlagen:', err);
+          toast('Teilen fehlgeschlagen – nutze Download');
+          document.getElementById('btnDownload').click();
+        }
       }
+    } else {
+      toast('Teilen wird hier nicht unterstützt – Download gestartet');
+      document.getElementById('btnDownload').click();
     }
-  } else {
-    // Fallback für nicht unterstützte Browser
-    toast('Teilen wird hier nicht unterstützt – Download gestartet');
-    document.getElementById('btnDownload').click();
-  }
-});
+  });
+
+
 })();
 </script>
 </body>
