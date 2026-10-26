@@ -29,9 +29,9 @@
 <dl class="help-def">
 
   <dt>Rückgängig</dt>
-  <dd>Macht maximal die letzten 20 Arbeitsschritte rückgängig.</dd>
+  <dd>Macht maximal die letzten 20 Arbeitsschritte rückgängig. Tastenkürzel: <kbd>Strg</kbd>/<kbd>⌘</kbd>+<kbd>Z</kbd>.</dd>
   <dt>Wiederherstellen</dt>
-  <dd>Stellt maximal die letzten 20 Arbeitsschritte wieder her.</dd>
+  <dd>Stellt maximal die letzten 20 Arbeitsschritte wieder her. Tastenkürzel: <kbd>Strg</kbd>/<kbd>⌘</kbd>+<kbd>Y</kbd> oder <kbd>Strg</kbd>/<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>.</dd>
   <dt>Suchen / Ersetzen</dt>
   <dd>Einfache Textsuche, Groß-/Kleinschreibung wird ignoriert. Kein Regex, keine Wortgrenzen. <kbd>Strg</kbd>/<kbd>⌘</kbd>+<kbd>Enter</kbd> im Suchfeld springt zum nächsten Treffer, im Ersetzen-Feld ersetzt den aktuellen Treffer. <kbd>Alle Ersetzen</kbd> ersetzt sämtliche Vorkommen.</dd>
   <dt>Formatieren</dt>
@@ -71,10 +71,28 @@
   <strong>Verlauf:</strong> Maximal 20 Versionen.
 </div>
 
+<h3><i class="bi bi-phone" aria-hidden="true"></i> Als App installieren</h3>
+<p>Der Editor lässt sich auf dem Smartphone oder Desktop als Progressive Web App (PWA) installieren. Vorteil: eigenes Fenster ohne Adressleiste, schnellerer Start und ein eigenes Icon auf dem Startbildschirm. Der Weg dorthin unterscheidet sich je nach Browser.</p>
+<dl class="help-def">
+  <dt>Chrome (Android - <i>Empfohlen!</i>)</dt>
+  <dd>Chrome unterstützt die PWA-Installation nativ. Auf Android erscheint je nach Nutzungshäufigkeit ein Installations-Banner; alternativ im Drei-Punkte-Menü <em>App installieren</em> bzw. <em>Zum Startbildschirm hinzufügen</em> wählen. Auf dem Desktop zeigt Chrome rechts in der Adressleiste ein Installations-Symbol (kleiner Bildschirm mit Pfeil), sobald die PWA-Kriterien erfüllt sind. Nach der Installation startet der Editor im eigenen Fenster.</dd>
+  <dt>Safari (iOS / iPadOS)</dt>
+  <dd>Safari bietet keine klassische PWA-Installation an. Stattdessen über die Teilen-Schaltfläche → <em>Zum Home-Bildschirm</em> hinzufügen. Die App startet dann im Vollbild ohne Adressleiste; einige PWA-Features (z. B. erweiterte Service-Worker-Funktionen, Install-Prompt) stehen jedoch nicht oder nur eingeschränkt zur Verfügung.</dd>
+  <dt>Firefox (Android)</dt>
+  <dd>Firefox unterstützt die PWA-Installation auf den meisten Plattformen nicht. Auf Android lässt sich die Seite lediglich über das Menü <em>Zum Startbildschirm hinzufügen</em> als Lesezeichen-Verknüpfung ablegen – das ist keine echte App-Installation, sondern öffnet die Seite im Browser. Auf dem Desktop gibt es keine Installationsfunktion.</dd>
+  <dt>Microsoft Edge / Samsung Internet</dt>
+  <dd>Beide unterstützen die PWA-Installation ähnlich wie Chrome. Bei Edge findet sich der Eintrag <em>App installieren</em> im Menü bzw. als Symbol in der Adressleiste; bei Samsung Internet im Menü <em>Zum Startbildschirm hinzufügen</em> mit App-Modus.</dd>
+</dl>
+<div class="help-limit">
+  <strong>Hinweis:</strong> Die Installation entfernt lediglich die Browser-Oberfläche und legt ein Icon an. Für echten Offline-Betrieb müsste die Seite zusätzlich über einen Service Worker offline-fähig gemacht werden – ohne diesen ist weiterhin eine Internetverbindung nötig.
+</div>
+
 <h3><i class="bi bi-lightning-charge" aria-hidden="true"></i> Tastenkürzel</h3>
 <ul>
   <li><kbd>Strg</kbd>/<kbd>⌘</kbd> + <kbd>F</kbd> – Suche öffnen</li>
   <li><kbd>Strg</kbd>/<kbd>⌘</kbd> + <kbd>S</kbd> – Download starten</li>
+  <li><kbd>Strg</kbd>/<kbd>⌘</kbd> + <kbd>Z</kbd> – Rückgängig</li>
+  <li><kbd>Strg</kbd>/<kbd>⌘</kbd> + <kbd>Y</kbd> oder <kbd>Strg</kbd>/<kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> – Wiederherstellen</li>
   <li><kbd>Strg</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> im Suchfeld – nächster Treffer</li>
   <li><kbd>Strg</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> im Ersetzen-Feld – ersetzen</li>
   <li><kbd>Tab</kbd> – zwei Leerzeichen einfügen</li>
