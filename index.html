@@ -634,12 +634,6 @@ body.minimap-dragging * {
         <span>Formatieren</span>
       </button>
       <div class="sep" role="separator"></div>
-      <button id="btnLineNumbers" role="menuitemcheckbox" aria-checked="false">
-        <i class="bi bi-list-ol" aria-hidden="true"></i>
-        <span>Zeilennummern anzeigen</span>
-        <i class="bi bi-check-lg check" hidden aria-hidden="true"></i>
-      </button>
-      <div class="sep" role="separator"></div>
       <div class="info-row" role="menuitem" tabindex="-1">
         <i class="bi bi-list-ol" aria-hidden="true"></i>
         <span>Zeilen</span>
@@ -662,8 +656,13 @@ body.minimap-dragging * {
     <div class="dropdown-menu" role="menu" aria-labelledby="ddViewToggle">
       <button id="btnMinimap" role="menuitemcheckbox" aria-checked="false">
         <i class="bi bi-map" aria-hidden="true"></i>
-        <span>Overview Minimap</span>
+        <span>Scroll Minimap</span>
         <i class="bi bi-check-lg check" id="mmCheck" hidden aria-hidden="true"></i>
+      </button>
+      <button id="btnLineNumbers" role="menuitemcheckbox" aria-checked="false">
+        <i class="bi bi-list-ol" aria-hidden="true"></i>
+        <span>Zeilennummern anz.</span>
+        <i class="bi bi-check-lg check" hidden aria-hidden="true"></i>
       </button>
       <div class="sep" role="separator"></div>
       <button id="btnPreview" role="menuitemcheckbox" aria-checked="false">
