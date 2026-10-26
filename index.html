@@ -1150,7 +1150,7 @@ body.minimap-dragging * {
   }
 
   /* =====================================================================
-     Minimap (Parallax-Scrolling mit fixem Viewport-Handle)
+     Minimap (Parallax-Scrolling mit *dynamischem* Parallax-Faktor)
      ===================================================================== */
   const minimap         = document.getElementById('minimap');
   const minimapCanvas   = document.getElementById('minimapCanvas');
@@ -1160,12 +1160,14 @@ body.minimap-dragging * {
   const MM_PAD_Y      = 6;
   const MM_LINE_H_MAX = 3;
   const MM_LINE_H_MIN = 0.4;
-  /* Parallax-Faktor:
-     0    = klassisches Verhalten (Minimap-Inhalt statisch, Slider 1:1)
-     0.5  = Inhalt & Slider teilen sich die Scroll-Bewegung
-     1    = Inhalt scrollt vollständig, Slider steht optisch still
-     Werte zwischen 0 und 1 sind sinnvoll (0 <= P < 1). */
-  const MM_PARALLAX = 0.5;
+  const MM_VP_MIN_H   = 64;   /* Mindesthöhe des Viewport-Handles in px */
+
+  /* Der Parallax-Faktor wird jetzt dynamisch berechnet (siehe
+     getMinimapMetrics), damit der Handle bei langen Dokumenten
+     exakt am unteren Rand ankommt, wenn der Editor ganz nach unten
+     gescrollt ist. Frühere feste Konstante MM_PARALLAX = 0.5 führte
+     bei langen Dateien dazu, dass der Handle viel zu früh am unteren
+     Rand ankam. */
 
   let showMinimap       = appOptions.minimap === true;
   let minimapDragging   = false;
@@ -1176,6 +1178,51 @@ body.minimap-dragging * {
     const availH = minimap.clientHeight - MM_PAD_Y * 2;
     if (availH <= 0) return MM_LINE_H_MAX;
     return Math.max(MM_LINE_H_MIN, Math.min(MM_LINE_H_MAX, availH / Math.max(1, totalLines)));
+  }
+
+  /* Berechnet alle Minimap-Metriken in einem Rutsch – inklusive
+     des dynamischen Parallax-Faktors.
+
+     Herleitung:
+       Der Handle soll bei maximaler Scroll-Position (firstVisibleLine =
+       maxFirst = totalLines - visibleLines) exakt den unteren Rand
+       erreichen. Also:
+         vpTop = MM_PAD_Y + (1 - P) * maxFirst * lineH
+       soll gleich
+         MM_PAD_Y + handleTravel
+       sein. Daraus folgt:
+         P = 1 - handleTravel / (maxFirst * lineH)
+
+     Zusätzlich wird contentOffset auf den physikalisch möglichen
+     Bereich [0, maxContentOffset] geklemmt, damit der Minimap-Inhalt
+     beim maximalen Scrollen nicht über das Dokumentende hinausläuft. */
+  function getMinimapMetrics() {
+    const cs = getComputedStyle(editor);
+    const editorLineH = parseFloat(cs.lineHeight) || 22;
+    const lines = editor.value.split('\n');
+    const totalLines = lines.length;
+    const visibleLines = editor.clientHeight / editorLineH;
+    const cssH = minimap.clientHeight;
+    const lineH = getMinimapLineHeight(totalLines);
+    const availH = Math.max(0, cssH - MM_PAD_Y * 2);
+
+    const vpHeight = Math.min(cssH, Math.max(MM_VP_MIN_H, visibleLines * lineH));
+    const maxFirst = Math.max(1, totalLines - visibleLines);
+    const handleTravel = Math.max(1, availH - vpHeight);
+
+    let parallax = 1 - handleTravel / (maxFirst * lineH);
+    if (!isFinite(parallax)) parallax = 0.5;
+    parallax = Math.max(0, Math.min(1, parallax));
+
+    const maxContentOffset = Math.max(0, totalLines * lineH - availH);
+    const firstVisibleLine = editor.scrollTop / editorLineH;
+    const contentOffset = Math.min(parallax * firstVisibleLine * lineH, maxContentOffset);
+
+    return {
+      lines, editorLineH, totalLines, visibleLines, cssH, lineH, availH,
+      vpHeight, maxFirst, handleTravel, parallax, maxContentOffset,
+      firstVisibleLine, contentOffset
+    };
   }
 
   function getMinimapLineColor(line) {
@@ -1197,17 +1244,10 @@ body.minimap-dragging * {
     const cssH = minimap.clientHeight;
     if (cssW === 0 || cssH === 0) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const lines = editor.value.split('\n');
-    const totalLines = lines.length;
-    const lineH = getMinimapLineHeight(totalLines);
+    const m = getMinimapMetrics();
+    const { lines, totalLines, lineH, contentOffset } = m;
 
-    /* Parallax: Minimap-Inhalt verschiebt sich um MM_PARALLAX * firstVisibleLine */
-    const cs = getComputedStyle(editor);
-    const editorLineH = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 14) * 1.55;
-    const firstVisibleLine = editor.scrollTop / editorLineH;
-    
-    const contentOffset = MM_PARALLAX * firstVisibleLine * lineH;
+    const dpr = window.devicePixelRatio || 1;
 
     minimapCanvas.width  = Math.round(cssW * dpr);
     minimapCanvas.height = Math.round(cssH * dpr);
@@ -1259,56 +1299,42 @@ body.minimap-dragging * {
     const cssH = minimap.clientHeight;
     if (cssH === 0) return;
 
-    const cs = getComputedStyle(editor);
-    const editorLineH = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 14) * 1.55;
-    const totalLines = editor.value.split('\n').length;
-    const visibleLines = editor.clientHeight / editorLineH;
+    const m = getMinimapMetrics();
 
     /* Passt der gesamte Inhalt in die Minimap? */
-    if (visibleLines >= totalLines) {
+    if (m.visibleLines >= m.totalLines) {
       minimapViewport.style.top = '0px';
       minimapViewport.style.height = cssH + 'px';
       return;
     }
 
-    const lineH = getMinimapLineHeight(totalLines);
-    const firstVisibleLine = editor.scrollTop / editorLineH;
-
-    /* Feste Handle-Höhe (proportional zur sichtbaren Editor-Höhe),
-       mindestens jedoch 64px – begrenzt durch die Minimap-Höhe. */
-    const vpHeight = Math.min(cssH, Math.max(64, visibleLines * lineH));
-
-    /* Parallax: Handle bewegt sich um (1 - MM_PARALLAX) der Distanz,
-       der Inhalt um MM_PARALLAX (siehe drawMinimap). */
-    const vpTop = MM_PAD_Y + (1 - MM_PARALLAX) * firstVisibleLine * lineH;
-    const maxTop = cssH - vpHeight;
+    /* Handle-Position: (1 - P) * firstVisibleLine * lineH.
+       P ist so gewählt, dass bei firstVisibleLine = maxFirst
+       der Handle exakt den unteren Rand erreicht. */
+    const vpTop = MM_PAD_Y + (1 - m.parallax) * m.firstVisibleLine * m.lineH;
+    const maxTop = cssH - m.vpHeight;
 
     minimapViewport.style.top    = Math.max(0, Math.min(maxTop, vpTop)) + 'px';
-    minimapViewport.style.height = vpHeight + 'px';
+    minimapViewport.style.height = m.vpHeight + 'px';
   }
 
   function minimapYToScrollTop(clientY) {
-    const cs = getComputedStyle(editor);
-    const editorLineH = parseFloat(cs.lineHeight) || 22;
-    const totalLines = editor.value.split('\n').length;
-    const visibleLines = editor.clientHeight / editorLineH;
-
-    if (visibleLines >= totalLines) return 0;
+    const m = getMinimapMetrics();
+    if (m.visibleLines >= m.totalLines) return 0;
 
     const rect = minimap.getBoundingClientRect();
-    const lineH = getMinimapLineHeight(totalLines);
-    const cssH = minimap.clientHeight;
-    /* Muss mit updateMinimapViewport() übereinstimmen (min. 64px). */
-    const vpHeight = Math.min(cssH, Math.max(64, visibleLines * lineH));
-
-    /* Slider-Zentrum soll auf den Klick fallen (Parallax berücksichtigen) */
     const clickY = clientY - rect.top;
-    const targetSliderTop = clickY - MM_PAD_Y - vpHeight / 2;
-    const firstVisibleLine = targetSliderTop / ((1 - MM_PARALLAX) * lineH);
+    /* Slider-Zentrum soll auf den Klick fallen:
+         vpTop = clickY - vpHeight/2
+         vpTop = MM_PAD_Y + (1 - P) * firstVisibleLine * lineH
+       → firstVisibleLine = (vpTop - MM_PAD_Y) / ((1 - P) * lineH) */
+    const targetSliderTop = clickY - MM_PAD_Y - m.vpHeight / 2;
+    const denom = (1 - m.parallax) * m.lineH;
+    if (denom <= 0) return 0;
+    const firstVisibleLine = targetSliderTop / denom;
 
-    const maxFirst = totalLines - visibleLines;
-    const clampedFirst = Math.max(0, Math.min(maxFirst, firstVisibleLine));
-    return clampedFirst * editorLineH;
+    const clampedFirst = Math.max(0, Math.min(m.maxFirst, firstVisibleLine));
+    return clampedFirst * m.editorLineH;
   }
 
   function toggleMinimap() {
@@ -1357,14 +1383,12 @@ body.minimap-dragging * {
 
   document.addEventListener('mousemove', (e) => {
     if (!minimapDragging) return;
+    const m = getMinimapMetrics();
     const dy = e.clientY - minimapDragStartY;
-    const lines = editor.value.split('\n');
-    const lineH = getMinimapLineHeight(lines.length);
-    const cs = getComputedStyle(editor);
-    const editorLineH = parseFloat(cs.lineHeight) || 22;
-    /* Parallax: Handle folgt Cursor 1:1 -> Scroll-Delta durch (1 - MM_PARALLAX) teilen */
-    editor.scrollTop = minimapDragStartScroll +
-                       (dy / ((1 - MM_PARALLAX) * lineH)) * editorLineH;
+    const denom = (1 - m.parallax) * m.lineH;
+    if (denom <= 0) return;
+    /* Handle folgt Cursor 1:1 -> Scroll-Delta durch (1 - P) teilen */
+    editor.scrollTop = minimapDragStartScroll + (dy / denom) * m.editorLineH;
     syncScroll();
   });
 
@@ -1390,14 +1414,12 @@ body.minimap-dragging * {
   document.addEventListener('touchmove', (e) => {
     if (!minimapDragging || e.touches.length !== 1) return;
     e.preventDefault();
+    const m = getMinimapMetrics();
     const touch = e.touches[0];
     const dy = touch.clientY - minimapDragStartY;
-    const lines = editor.value.split('\n');
-    const lineH = getMinimapLineHeight(lines.length);
-    const cs = getComputedStyle(editor);
-    const editorLineH = parseFloat(cs.lineHeight) || 22;
-    editor.scrollTop = minimapDragStartScroll +
-                       (dy / ((1 - MM_PARALLAX) * lineH)) * editorLineH;
+    const denom = (1 - m.parallax) * m.lineH;
+    if (denom <= 0) return;
+    editor.scrollTop = minimapDragStartScroll + (dy / denom) * m.editorLineH;
     syncScroll();
   }, { passive: false });
 
