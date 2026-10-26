@@ -557,6 +557,11 @@ body.minimap-dragging * {
         <span>Konsole</span>
         <i class="bi bi-check-lg check" id="consoleCheck" hidden aria-hidden="true"></i>
       </button>
+      <div class="sep" role="separator"></div>
+      <button id="btnClearPreviewData" role="menuitem">
+        <i class="bi bi-database-x" aria-hidden="true"></i>
+        <span>Vorschau-Daten löschen</span>
+      </button>
     </div>
   </div>
 
@@ -1201,6 +1206,7 @@ body.minimap-dragging * {
     const cs = getComputedStyle(editor);
     const editorLineH = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 14) * 1.55;
     const firstVisibleLine = editor.scrollTop / editorLineH;
+    
     const contentOffset = MM_PARALLAX * firstVisibleLine * lineH;
 
     minimapCanvas.width  = Math.round(cssW * dpr);
@@ -1543,11 +1549,371 @@ body.minimap-dragging * {
     if (showConsole) toggleConsole();
   });
 
+  /* =====================================================================
+     Storage-Shim (Parent-Seite): hält die Daten der Vorschau
+     ===================================================================== */
+  const PREVIEW_STORE_KEY = 'htmleditorPreviewStore';
+
+  const previewStorage = {
+    local:   Object.create(null),
+    session: Object.create(null),
+    idb:     Object.create(null)
+  };
+
+  function persistPreviewStorage() {
+    try {
+      localStorage.setItem(PREVIEW_STORE_KEY, JSON.stringify(previewStorage));
+    } catch (e) { /* quota / blockiert – ignorieren */ }
+  }
+
+  function loadPreviewStorage() {
+    try {
+      const raw = localStorage.getItem(PREVIEW_STORE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        previewStorage.local   = parsed.local   || Object.create(null);
+        previewStorage.session = parsed.session || Object.create(null);
+        previewStorage.idb     = parsed.idb     || Object.create(null);
+      }
+    } catch (e) { /* still */ }
+  }
+  loadPreviewStorage();
+
+  window.addEventListener('message', (e) => {
+    const d = e.data;
+    if (!d || !d.__editorStorage) return;
+    // Nur Nachrichten von *unserem* previewFrame akzeptieren
+    if (e.source !== previewFrame.contentWindow) return;
+
+    const reply = (result, error) => {
+      try {
+        previewFrame.contentWindow.postMessage({
+          __editorStorageReply: true,
+          nonce: d.nonce,
+          id: d.id,
+          result: result,
+          error: error ? String(error) : null
+        }, '*');
+      } catch (err) { /* iframe evtl. schon weg */ }
+    };
+
+    try {
+      switch (d.method) {
+        case 'storage.getAll':
+          reply(previewStorage[d.args[0]] || {});
+          break;
+        case 'storage.set':
+          (previewStorage[d.args[0]] = previewStorage[d.args[0]] || Object.create(null))[d.args[1]] = d.args[2];
+          persistPreviewStorage();
+          reply(undefined);
+          break;
+        case 'storage.remove':
+          if (previewStorage[d.args[0]]) delete previewStorage[d.args[0]][d.args[1]];
+          persistPreviewStorage();
+          reply(undefined);
+          break;
+        case 'storage.clear':
+          previewStorage[d.args[0]] = Object.create(null);
+          persistPreviewStorage();
+          reply(undefined);
+          break;
+        case 'idb.getAll':
+          reply(previewStorage.idb);
+          break;
+        case 'idb.setAll':
+          previewStorage.idb = d.args[0] || Object.create(null);
+          persistPreviewStorage();
+          reply(undefined);
+          break;
+        default:
+          reply(undefined, 'Unbekannte Methode: ' + d.method);
+      }
+    } catch (err) {
+      reply(undefined, err && err.message ? err.message : String(err));
+    }
+  });
+
+  document.getElementById('btnClearPreviewData').addEventListener('click', () => {
+    previewStorage.local   = Object.create(null);
+    previewStorage.session = Object.create(null);
+    previewStorage.idb     = Object.create(null);
+    persistPreviewStorage();
+    if (showPreview) updatePreview(); // frische Sandbox mit leerem Store
+    toast('Vorschau-Daten gelöscht');
+    closeAllDropdowns();
+  });
+
   /* ---------- Vorschau ---------- */
+  let previewNonce = 0; // wird pro updatePreview() hochgezählt
+
   function buildPreviewSrcdoc(userHtml) {
+    previewNonce++;
+    const nonce = previewNonce;
+
     const instrumentation = `
 <script>
 (function(){
+  var NONCE = ${JSON.stringify(nonce)};
+  var pending = new Map();
+  var nextId = 1;
+
+  function rpc(method, args) {
+    return new Promise(function(resolve, reject) {
+      var id = nextId++;
+      pending.set(id, { resolve: resolve, reject: reject });
+      parent.postMessage({
+        __editorStorage: true,
+        nonce: NONCE,
+        id: id,
+        method: method,
+        args: args || []
+      }, '*');
+    });
+  }
+
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (!d || !d.__editorStorageReply || d.nonce !== NONCE) return;
+    var p = pending.get(d.id);
+    if (!p) return;
+    pending.delete(d.id);
+    if (d.error) p.reject(new Error(d.error));
+    else p.resolve(d.result);
+  });
+
+  /* ---- localStorage / sessionStorage (synchron, via Proxy) ---- */
+  function makeStorage(kind) {
+    var cache = Object.create(null);
+
+    rpc('storage.getAll', [kind]).then(function(map) {
+      for (var k in map) if (Object.prototype.hasOwnProperty.call(map, k)) cache[k] = map[k];
+    }, function() {});
+
+    var handler = {
+      get: function(_t, prop) {
+        if (prop === 'length') return Object.keys(cache).length;
+        if (prop === 'key') return function(i) { return Object.keys(cache)[i] || null; };
+        if (prop === 'getItem') return function(k) {
+          k = String(k); return k in cache ? cache[k] : null;
+        };
+        if (prop === 'setItem') return function(k, v) {
+          k = String(k); v = String(v);
+          cache[k] = v;
+          rpc('storage.set', [kind, k, v]).catch(function(){});
+        };
+        if (prop === 'removeItem') return function(k) {
+          k = String(k); delete cache[k];
+          rpc('storage.remove', [kind, k]).catch(function(){});
+        };
+        if (prop === 'clear') return function() {
+          for (var k in cache) delete cache[k];
+          rpc('storage.clear', [kind]).catch(function(){});
+        };
+        if (prop in cache) return cache[prop];
+        return undefined;
+      },
+      set: function(_t, prop, value) {
+        cache[String(prop)] = String(value);
+        rpc('storage.set', [kind, String(prop), String(value)]).catch(function(){});
+        return true;
+      },
+      deleteProperty: function(_t, prop) {
+        delete cache[String(prop)];
+        rpc('storage.remove', [kind, String(prop)]).catch(function(){});
+        return true;
+      },
+      ownKeys: function() { return Object.keys(cache); },
+      getOwnPropertyDescriptor: function(_t, prop) {
+        if (prop in cache) return { value: cache[prop], enumerable: true, configurable: true, writable: true };
+        return undefined;
+      }
+    };
+
+    return new Proxy({}, handler);
+  }
+
+  /* ---- indexedDB (asynchron, minimaler Shim) ---- */
+  // Unterstützt: indexedDB.open, createObjectStore, objectStore.get/put/add/delete/clear/count/getAll,
+  // Transaktionen mit oncomplete/onerror. Kein Index/Cursor-Support.
+  function FakeIDB() {
+    var dbs = {}; // name -> { version, stores: { name: { keyPath, data: {} } } }
+
+    function FakeRequest(result) {
+      var req = { result: result, error: null, readyState: 'done',
+                  onsuccess: null, onerror: null };
+      setTimeout(function() { if (req.onsuccess) req.onsuccess({ target: req }); }, 0);
+      return req;
+    }
+    function fail(msg) {
+      var err = new Error(msg); err.name = 'InvalidStateError';
+      throw err;
+    }
+    function clone(v) { return v === undefined ? undefined : JSON.parse(JSON.stringify(v)); }
+
+    var pendingSync = false;
+    function syncToParent() {
+      if (pendingSync) return;
+      pendingSync = true;
+      setTimeout(function() {
+        pendingSync = false;
+        var plain = {};
+        for (var n in dbs) {
+          plain[n] = { version: dbs[n].version, stores: {} };
+          for (var s in dbs[n].stores) {
+            plain[n].stores[s] = {
+              keyPath: dbs[n].stores[s].keyPath,
+              data: dbs[n].stores[s].data
+            };
+          }
+        }
+        rpc('idb.setAll', [plain]).catch(function(){});
+      }, 0);
+    }
+
+    function makeStore(state) {
+      return {
+        name: state.name,
+        keyPath: state.keyPath,
+        autoIncrement: false,
+        createIndex: function() { /* no-op */ },
+        index: function() { fail('index() nicht unterstützt'); },
+        get: function(key) {
+          var k = String(key);
+          return FakeRequest(state.data[k] ? clone(state.data[k]) : undefined);
+        },
+        getAll: function() {
+          return FakeRequest(Object.keys(state.data).map(function(k){ return clone(state.data[k]); }));
+        },
+        put: function(value, key) {
+          var k = key !== undefined ? String(key)
+                : (state.keyPath && value && value[state.keyPath] != null)
+                  ? String(value[state.keyPath]) : null;
+          if (k === null) fail('put ohne key/keyPath');
+          state.data[k] = clone(value);
+          syncToParent();
+          return FakeRequest(k);
+        },
+        add: function(value, key) {
+          var k = key !== undefined ? String(key)
+                : (state.keyPath && value && value[state.keyPath] != null)
+                  ? String(value[state.keyPath]) : null;
+          if (k === null) fail('add ohne key/keyPath');
+          if (k in state.data) { var e = new Error('Key existiert'); e.name='ConstraintError'; throw e; }
+          state.data[k] = clone(value);
+          syncToParent();
+          return FakeRequest(k);
+        },
+        'delete': function(key) {
+          delete state.data[String(key)];
+          syncToParent();
+          return FakeRequest(undefined);
+        },
+        clear: function() {
+          state.data = {};
+          syncToParent();
+          return FakeRequest(undefined);
+        },
+        count: function() { return FakeRequest(Object.keys(state.data).length); }
+      };
+    }
+
+    var readyPromise = rpc('idb.getAll', []).then(function(plain) {
+      if (plain && typeof plain === 'object') {
+        for (var n in plain) {
+          var dbState = { version: plain[n].version || 1, stores: {} };
+          var st = plain[n].stores || {};
+          for (var s in st) {
+            dbState.stores[s] = { name: s, keyPath: st[s].keyPath, data: st[s].data || {} };
+          }
+          dbs[n] = dbState;
+        }
+      }
+    }, function(){});
+
+    function open(name, version) {
+      name = String(name);
+      var req = { onupgradeneeded: null, onsuccess: null, onerror: null, result: null };
+      readyPromise.then(function() {
+        var existing = dbs[name];
+        var needUpgrade = !existing || (version && version > (existing.version || 1));
+        var state = existing || { version: version || 1, stores: {} };
+        if (needUpgrade) state.version = version || 1;
+        dbs[name] = state;
+
+        var dbObj = {
+          name: name,
+          version: state.version,
+          objectStoreNames: {
+            contains: function(n) { return n in state.stores; },
+            item: function(i) { return Object.keys(state.stores)[i] || null; },
+            get length() { return Object.keys(state.stores).length; }
+          },
+          createObjectStore: function(storeName, opts) {
+            var st = { name: storeName, keyPath: opts && opts.keyPath || null, data: {} };
+            state.stores[storeName] = st;
+            return makeStore(st);
+          },
+          deleteObjectStore: function(storeName) {
+            delete state.stores[storeName];
+            syncToParent();
+          },
+          transaction: function(storeNames, mode) {
+            if (typeof storeNames === 'string') storeNames = [storeNames];
+            var tx = {
+              mode: mode || 'readonly',
+              oncomplete: null,
+              onerror: null,
+              onabort: null,
+              objectStore: function(n) {
+                var st = state.stores[n];
+                if (!st) fail('objectStore ' + n + ' nicht gefunden');
+                return makeStore(st);
+              },
+              abort: function() { setTimeout(function(){ if (tx.onabort) tx.onabort(); }, 0); }
+            };
+            setTimeout(function() { if (tx.oncomplete) tx.oncomplete(); }, 0);
+            return tx;
+          },
+          close: function() {}
+        };
+
+        req.result = dbObj;
+        if (needUpgrade) {
+          setTimeout(function() {
+            if (req.onupgradeneeded) req.onupgradeneeded({ target: req, oldVersion: 0, newVersion: state.version });
+            if (req.onsuccess) req.onsuccess({ target: req });
+          }, 0);
+        } else {
+          setTimeout(function() { if (req.onsuccess) req.onsuccess({ target: req }); }, 0);
+        }
+      });
+      return req;
+    }
+
+    return { open: open, deleteDatabase: function(name) { delete dbs[name]; syncToParent(); return FakeRequest(undefined); } };
+  }
+
+  /* ---- Installation der Shims mit try/catch-Schutz ---- */
+  try {
+    Object.defineProperty(window, 'localStorage', { value: makeStorage('local'), configurable: true });
+    Object.defineProperty(window, 'sessionStorage', { value: makeStorage('session'), configurable: true });
+  } catch (e) { /* falls nicht überschreibbar: still ignorieren */ }
+
+  try {
+    var fakeIdb = new FakeIDB();
+    Object.defineProperty(window, 'indexedDB', { value: fakeIdb, configurable: true });
+    Object.defineProperty(window, 'IDBKeyRange', {
+      value: {
+        only: function(v){ return { only: v }; },
+        lowerBound: function(v){ return { lower: v }; },
+        upperBound: function(v){ return { upper: v }; },
+        bound: function(l,u){ return { lower: l, upper: u }; }
+      }, configurable: true
+    });
+  } catch (e) { /* still */ }
+
+  /* ---- Konsole / Errors ---- */
   function stringify(v) {
     try {
       if (v === undefined) return 'undefined';
@@ -1640,7 +2006,7 @@ body.minimap-dragging * {
     if (showPreview) togglePreview();
   });
 
-  /* Nachrichten aus dem Vorschau-iframe empfangen */
+  /* Nachrichten aus dem Vorschau-iframe empfangen (Konsole) */
   window.addEventListener('message', (e) => {
     const data = e.data;
     if (!data || !data.__editorConsole) return;
