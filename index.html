@@ -4,9 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HTML Editor</title>
+
+<!-- PWA: Manifest, Theme, Icons -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1116">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Editor">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+
+<link rel="stylesheet" href="help.css">
 <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <script src="help.js"></script>
+<script src="iFrameInstrumentation.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -68,8 +82,19 @@ body {
 }
 .dropdown-menu button i { font-size: 1.05rem; width: 20px; text-align: center; }
 .dropdown-menu button:hover { background: #2a3142; }
+.dropdown-menu button:disabled { opacity: 0.4; cursor: not-allowed; }
+.dropdown-menu button:disabled:hover { background: transparent; }
 .dropdown-menu button .check {
   margin-left: auto; color: #7ee787; font-size: 1rem;
+}
+.dropdown-menu button .shortcut-hint {
+  margin-left: auto;
+  color: #7d8590;
+  font-size: 11.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .dropdown-menu .sep { height: 1px; background: #2b3242; margin: 5px 4px; }
 
@@ -448,123 +473,7 @@ body.minimap-dragging * {
 .dropdown.align-right .dropdown-menu { left: auto; right: 0; }
 .dropdown-menu { max-width: calc(100vw - 16px); }
 
-/* ---------- Hilfe-Dialog ---------- */
-.help-dialog {
-  width: min(720px, calc(100vw - 32px));
-  max-height: min(85vh, 800px);
-  padding: 0;
-  border: 1px solid #2b3242;
-  border-radius: 12px;
-  background: #151821;
-  color: #d7dce5;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
-  overflow: hidden;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-.help-dialog[open] {
-  display: flex;
-  flex-direction: column;
-}
-.help-dialog::backdrop {
-  background: rgba(5, 8, 14, 0.72);
-  backdrop-filter: blur(2px);
-}
-.help-dialog-header {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: #1d2230;
-  border-bottom: 1px solid #2b3242;
-}
-.help-dialog-title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: #e6edf3;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.help-dialog-title i { font-size: 1.15rem; color: #7ee787; }
-.help-close {
-  margin-left: auto;
-  min-width: 32px;
-  min-height: 30px;
-  font-size: 14px;
-}
-.help-dialog-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 16px 20px 22px;
-  font-size: 13.5px;
-  line-height: 1.6;
-}
-.help-dialog-body::-webkit-scrollbar { width: 8px; }
-.help-dialog-body::-webkit-scrollbar-thumb { background: #2b3242; border-radius: 4px; }
-.help-dialog-body h3 {
-  margin: 20px 0 8px;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #7ee787;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.help-dialog-body h3:first-child { margin-top: 0; }
-.help-dialog-body h3 i { font-size: 1rem; }
-.help-dialog-body p { margin: 0 0 10px; color: #cfd6e4; }
-.help-dialog-body ul { margin: 0 0 12px; padding-left: 20px; }
-.help-dialog-body li { margin: 3px 0; }
-.help-dialog-body code,
-.help-dialog-body kbd {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
-  background: #232833;
-  border: 1px solid #2f3a4d;
-  border-radius: 4px;
-  padding: 1px 5px;
-  color: #a5d6ff;
-}
-.help-dialog-body kbd { color: #ffd479; }
-.help-dialog-body .help-def {
-  display: grid;
-  /* grid-template-columns: max-content 1fr; */
-  gap: 6px 14px;
-  margin: 0 0 14px;
-}
-.help-dialog-body .help-def > dt {
-  font-weight: 600;
-  color: #e6edf3;
-  font-size: 13px;
-  padding-top: 1px;
-}
-.help-dialog-body .help-def > dd {
-  margin: 0;
-  color: #b8c2d1;
-  font-size: 13px;
-}
-.help-dialog-body .help-limit {
-  background: rgba(248, 81, 73, 0.08);
-  border-left: 3px solid #f85149;
-  padding: 10px 12px;
-  border-radius: 6px;
-  margin: 10px 0 12px;
-  color: #ff7b72;
-  font-size: 13px;
-}
-.help-dialog-body .help-note {
-  background: rgba(121, 192, 255, 0.06);
-  border-left: 3px solid #79c0ff;
-  padding: 10px 12px;
-  border-radius: 6px;
-  margin: 10px 0 16px;
-  color: #a5d6ff;
-  font-size: 13px;
-}
+
 
 /* ---------- Mobile ---------- */
 @media (max-width: 640px) {
@@ -625,6 +534,17 @@ body.minimap-dragging * {
       <i class="bi bi-chevron-down caret" aria-hidden="true"></i>
     </button>
     <div class="dropdown-menu" role="menu" aria-labelledby="ddEditToggle">
+      <button id="btnUndo" role="menuitem" disabled>
+        <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+        <span>Rückgängig</span>
+        <span class="shortcut-hint">Strg+Z</span>
+      </button>
+      <button id="btnRedo" role="menuitem" disabled>
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+        <span>Wiederherstellen</span>
+        <span class="shortcut-hint">Strg+Y</span>
+      </button>
+      <div class="sep" role="separator"></div>
       <button id="btnFind" role="menuitem">
         <i class="bi bi-search" aria-hidden="true"></i>
         <span>Suchen/Ersetzen</span>
@@ -1279,9 +1199,129 @@ body.minimap-dragging * {
       const s = editor.selectionStart, e = editor.selectionEnd;
       editor.value = editor.value.slice(0, s) + text + editor.value.slice(e);
       editor.setSelectionRange(s + text.length, s + text.length);
+      updateHighlight();
+      scheduleUndoCommit(); // Fallback feuert kein natives input-Event
     }
-    updateHighlight();
   }
+
+  /* =====================================================================
+     Undo / Redo mit Snapshot-Stack
+     =====================================================================
+     - Maximal 20 Snapshots
+     - Nicht persistiert (nur im Speicher)
+     - Ein Arbeitsschritt endet nach 5 s Untätigkeit oder sofort bei
+       Undo/Redo bzw. bei "harten" Aktionen (Formatieren, Öffnen,
+       Einfügen & Ersetzen, Version laden, Alle ersetzen, Datei laden)
+     - undoStack enthält Zustände VOR jeder Änderung
+     - redoStack enthält Zustände, die durch Undo entfernt wurden
+     ===================================================================== */
+  const UNDO_MAX_SNAPSHOTS = 20;
+  const UNDO_COMMIT_DELAY  = 5000;
+
+  const undoStack = [];
+  const redoStack = [];
+  let undoCommitTimer = null;
+  let lastKnownValue  = editor.value;
+
+  const btnUndo = document.getElementById('btnUndo');
+  const btnRedo = document.getElementById('btnRedo');
+
+  function updateUndoButtons() {
+    btnUndo.disabled = undoStack.length === 0;
+    btnRedo.disabled = redoStack.length === 0;
+  }
+
+  function clearUndoCommitTimer() {
+    if (undoCommitTimer !== null) {
+      clearTimeout(undoCommitTimer);
+      undoCommitTimer = null;
+    }
+  }
+
+  function commitUndoSnapshot() {
+    clearUndoCommitTimer();
+    const current = editor.value;
+    if (current === lastKnownValue) return;
+    undoStack.push(lastKnownValue);
+    if (undoStack.length > UNDO_MAX_SNAPSHOTS) undoStack.shift();
+    redoStack.length = 0;
+    lastKnownValue = current;
+    updateUndoButtons();
+  }
+
+  function scheduleUndoCommit() {
+    clearUndoCommitTimer();
+    undoCommitTimer = setTimeout(() => {
+      undoCommitTimer = null;
+      commitUndoSnapshot();
+    }, UNDO_COMMIT_DELAY);
+  }
+
+  function performUndo() {
+    if (editor.value !== lastKnownValue) {
+      commitUndoSnapshot();
+    }
+    if (undoStack.length === 0) {
+      toast('Nichts rückgängig zu machen');
+      return;
+    }
+    clearUndoCommitTimer();
+    const prev = undoStack.pop();
+    redoStack.push(editor.value);
+    if (redoStack.length > UNDO_MAX_SNAPSHOTS) redoStack.shift();
+    setValue(prev);
+    lastKnownValue = prev;
+    updateUndoButtons();
+    toast('Rückgängig');
+  }
+
+  function performRedo() {
+    if (redoStack.length === 0) {
+      toast('Nichts wiederherzustellen');
+      return;
+    }
+    clearUndoCommitTimer();
+    const next = redoStack.pop();
+    undoStack.push(editor.value);
+    if (undoStack.length > UNDO_MAX_SNAPSHOTS) undoStack.shift();
+    setValue(next);
+    lastKnownValue = next;
+    updateUndoButtons();
+    toast('Wiederhergestellt');
+  }
+
+  /**
+   * Wird vor einer "harten" Aktion aufgerufen: Committet ausstehende
+   * Änderungen und stellt sicher, dass der aktuelle Zustand als
+   * Undo-Punkt vorhanden ist (damit Undo nach der Aktion den
+   * Vor-Aktions-Zustand wiederherstellt).
+   */
+  function commitUndoNow() {
+    clearUndoCommitTimer();
+    if (editor.value !== lastKnownValue) {
+      commitUndoSnapshot();
+    }
+    if (undoStack.length === 0 || undoStack[undoStack.length - 1] !== lastKnownValue) {
+      undoStack.push(lastKnownValue);
+      if (undoStack.length > UNDO_MAX_SNAPSHOTS) undoStack.shift();
+    }
+    redoStack.length = 0;
+    updateUndoButtons();
+  }
+
+  btnUndo.addEventListener('click', (e) => {
+    e.stopPropagation();
+    performUndo();
+    closeAllDropdowns();
+  });
+
+  btnRedo.addEventListener('click', (e) => {
+    e.stopPropagation();
+    performRedo();
+    closeAllDropdowns();
+  });
+
+  updateUndoButtons();
 
   /* =====================================================================
      Minimap (Parallax-Scrolling mit *dynamischem* Parallax-Faktor)
@@ -1296,13 +1336,6 @@ body.minimap-dragging * {
   const MM_LINE_H_MIN = 0.4;
   const MM_VP_MIN_H   = 64;   /* Mindesthöhe des Viewport-Handles in px */
 
-  /* Der Parallax-Faktor wird jetzt dynamisch berechnet (siehe
-     getMinimapMetrics), damit der Handle bei langen Dokumenten
-     exakt am unteren Rand ankommt, wenn der Editor ganz nach unten
-     gescrollt ist. Frühere feste Konstante MM_PARALLAX = 0.5 führte
-     bei langen Dateien dazu, dass der Handle viel zu früh am unteren
-     Rand ankam. */
-
   let showMinimap       = appOptions.minimap !== false;
   let minimapDragging   = false;
   let minimapDragStartY = 0;
@@ -1314,22 +1347,6 @@ body.minimap-dragging * {
     return Math.max(MM_LINE_H_MIN, Math.min(MM_LINE_H_MAX, availH / Math.max(1, totalLines)));
   }
 
-  /* Berechnet alle Minimap-Metriken in einem Rutsch – inklusive
-     des dynamischen Parallax-Faktors.
-
-     Herleitung:
-       Der Handle soll bei maximaler Scroll-Position (firstVisibleLine =
-       maxFirst = totalLines - visibleLines) exakt den unteren Rand
-       erreichen. Also:
-         vpTop = MM_PAD_Y + (1 - P) * maxFirst * lineH
-       soll gleich
-         MM_PAD_Y + handleTravel
-       sein. Daraus folgt:
-         P = 1 - handleTravel / (maxFirst * lineH)
-
-     Zusätzlich wird contentOffset auf den physikalisch möglichen
-     Bereich [0, maxContentOffset] geklemmt, damit der Minimap-Inhalt
-     beim maximalen Scrollen nicht über das Dokumentende hinausläuft. */
   function getMinimapMetrics() {
     const cs = getComputedStyle(editor);
     const editorLineH = parseFloat(cs.lineHeight) || 22;
@@ -1397,7 +1414,6 @@ body.minimap-dragging * {
 
     const contentW = cssW - 4;
 
-    /* Optimierung: nur sichtbaren Bereich iterieren */
     const startIdx = Math.max(0, Math.floor((contentOffset - MM_PAD_Y) / lineH) - 1);
 
     for (let i = startIdx; i < totalLines; i++) {
@@ -1435,16 +1451,12 @@ body.minimap-dragging * {
 
     const m = getMinimapMetrics();
 
-    /* Passt der gesamte Inhalt in die Minimap? */
     if (m.visibleLines >= m.totalLines) {
       minimapViewport.style.top = '0px';
       minimapViewport.style.height = cssH + 'px';
       return;
     }
 
-    /* Handle-Position: (1 - P) * firstVisibleLine * lineH.
-       P ist so gewählt, dass bei firstVisibleLine = maxFirst
-       der Handle exakt den unteren Rand erreicht. */
     const vpTop = MM_PAD_Y + (1 - m.parallax) * m.firstVisibleLine * m.lineH;
     const maxTop = cssH - m.vpHeight;
 
@@ -1458,10 +1470,6 @@ body.minimap-dragging * {
 
     const rect = minimap.getBoundingClientRect();
     const clickY = clientY - rect.top;
-    /* Slider-Zentrum soll auf den Klick fallen:
-         vpTop = clickY - vpHeight/2
-         vpTop = MM_PAD_Y + (1 - P) * firstVisibleLine * lineH
-       → firstVisibleLine = (vpTop - MM_PAD_Y) / ((1 - P) * lineH) */
     const targetSliderTop = clickY - MM_PAD_Y - m.vpHeight / 2;
     const denom = (1 - m.parallax) * m.lineH;
     if (denom <= 0) return 0;
@@ -1521,7 +1529,6 @@ body.minimap-dragging * {
     const dy = e.clientY - minimapDragStartY;
     const denom = (1 - m.parallax) * m.lineH;
     if (denom <= 0) return;
-    /* Handle folgt Cursor 1:1 -> Scroll-Delta durch (1 - P) teilen */
     editor.scrollTop = minimapDragStartScroll + (dy / denom) * m.editorLineH;
     syncScroll();
   });
@@ -1594,7 +1601,6 @@ body.minimap-dragging * {
   let showPreview = false;
   let previewAutoOpenedConsole = false;
 
-  /* ---------- Konsole: Aktionen ---------- */
   function clearConsoleMessages() {
     consoleBody.innerHTML = '<div class="console-empty">Keine Meldungen.</div>';
   }
@@ -1644,13 +1650,11 @@ body.minimap-dragging * {
     consoleBody.appendChild(msg);
     if (nearBottom) consoleBody.scrollTop = consoleBody.scrollHeight;
 
-    // Erste Fehlermeldung: Konsole automatisch öffnen
     if (level === 'error' && showPreview && !showConsole && !previewAutoOpenedConsole) {
       previewAutoOpenedConsole = true;
       toggleConsole();
     }
 
-    // Begrenzen
     while (consoleBody.children.length > 500) {
       consoleBody.removeChild(consoleBody.firstChild);
     }
@@ -1706,7 +1710,7 @@ body.minimap-dragging * {
   });
 
   /* =====================================================================
-     Storage-Shim (Parent-Seite): hält die Daten der Vorschau
+     Storage-Shim (Parent-Seite)
      ===================================================================== */
   const PREVIEW_STORE_KEY = 'htmleditorPreviewStore';
 
@@ -1739,7 +1743,6 @@ body.minimap-dragging * {
   window.addEventListener('message', (e) => {
     const d = e.data;
     if (!d || !d.__editorStorage) return;
-    // Nur Nachrichten von *unserem* previewFrame akzeptieren
     if (e.source !== previewFrame.contentWindow) return;
 
     const reply = (result, error) => {
@@ -1795,324 +1798,20 @@ body.minimap-dragging * {
     previewStorage.session = Object.create(null);
     previewStorage.idb     = Object.create(null);
     persistPreviewStorage();
-    if (showPreview) updatePreview(); // frische Sandbox mit leerem Store
+    if (showPreview) updatePreview();
     toast('Vorschau-Daten gelöscht');
     closeAllDropdowns();
   });
 
   /* ---------- Vorschau ---------- */
-  let previewNonce = 0; // wird pro updatePreview() hochgezählt
+  let previewNonce = 0;
 
   function buildPreviewSrcdoc(userHtml) {
     previewNonce++;
     const nonce = previewNonce;
 
-    const instrumentation = `
-<script>
-(function(){
-  var NONCE = ${JSON.stringify(nonce)};
-  var pending = new Map();
-  var nextId = 1;
-
-  function rpc(method, args) {
-    return new Promise(function(resolve, reject) {
-      var id = nextId++;
-      pending.set(id, { resolve: resolve, reject: reject });
-      parent.postMessage({
-        __editorStorage: true,
-        nonce: NONCE,
-        id: id,
-        method: method,
-        args: args || []
-      }, '*');
-    });
-  }
-
-  window.addEventListener('message', function(e) {
-    var d = e.data;
-    if (!d || !d.__editorStorageReply || d.nonce !== NONCE) return;
-    var p = pending.get(d.id);
-    if (!p) return;
-    pending.delete(d.id);
-    if (d.error) p.reject(new Error(d.error));
-    else p.resolve(d.result);
-  });
-
-  /* ---- localStorage / sessionStorage (synchron, via Proxy) ---- */
-  function makeStorage(kind) {
-    var cache = Object.create(null);
-
-    rpc('storage.getAll', [kind]).then(function(map) {
-      for (var k in map) if (Object.prototype.hasOwnProperty.call(map, k)) cache[k] = map[k];
-    }, function() {});
-
-    var handler = {
-      get: function(_t, prop) {
-        if (prop === 'length') return Object.keys(cache).length;
-        if (prop === 'key') return function(i) { return Object.keys(cache)[i] || null; };
-        if (prop === 'getItem') return function(k) {
-          k = String(k); return k in cache ? cache[k] : null;
-        };
-        if (prop === 'setItem') return function(k, v) {
-          k = String(k); v = String(v);
-          cache[k] = v;
-          rpc('storage.set', [kind, k, v]).catch(function(){});
-        };
-        if (prop === 'removeItem') return function(k) {
-          k = String(k); delete cache[k];
-          rpc('storage.remove', [kind, k]).catch(function(){});
-        };
-        if (prop === 'clear') return function() {
-          for (var k in cache) delete cache[k];
-          rpc('storage.clear', [kind]).catch(function(){});
-        };
-        if (prop in cache) return cache[prop];
-        return undefined;
-      },
-      set: function(_t, prop, value) {
-        cache[String(prop)] = String(value);
-        rpc('storage.set', [kind, String(prop), String(value)]).catch(function(){});
-        return true;
-      },
-      deleteProperty: function(_t, prop) {
-        delete cache[String(prop)];
-        rpc('storage.remove', [kind, String(prop)]).catch(function(){});
-        return true;
-      },
-      ownKeys: function() { return Object.keys(cache); },
-      getOwnPropertyDescriptor: function(_t, prop) {
-        if (prop in cache) return { value: cache[prop], enumerable: true, configurable: true, writable: true };
-        return undefined;
-      }
-    };
-
-    return new Proxy({}, handler);
-  }
-
-  /* ---- indexedDB (asynchron, minimaler Shim) ---- */
-  // Unterstützt: indexedDB.open, createObjectStore, objectStore.get/put/add/delete/clear/count/getAll,
-  // Transaktionen mit oncomplete/onerror. Kein Index/Cursor-Support.
-  function FakeIDB() {
-    var dbs = {}; // name -> { version, stores: { name: { keyPath, data: {} } } }
-
-    function FakeRequest(result) {
-      var req = { result: result, error: null, readyState: 'done',
-                  onsuccess: null, onerror: null };
-      setTimeout(function() { if (req.onsuccess) req.onsuccess({ target: req }); }, 0);
-      return req;
-    }
-    function fail(msg) {
-      var err = new Error(msg); err.name = 'InvalidStateError';
-      throw err;
-    }
-    function clone(v) { return v === undefined ? undefined : JSON.parse(JSON.stringify(v)); }
-
-    var pendingSync = false;
-    function syncToParent() {
-      if (pendingSync) return;
-      pendingSync = true;
-      setTimeout(function() {
-        pendingSync = false;
-        var plain = {};
-        for (var n in dbs) {
-          plain[n] = { version: dbs[n].version, stores: {} };
-          for (var s in dbs[n].stores) {
-            plain[n].stores[s] = {
-              keyPath: dbs[n].stores[s].keyPath,
-              data: dbs[n].stores[s].data
-            };
-          }
-        }
-        rpc('idb.setAll', [plain]).catch(function(){});
-      }, 0);
-    }
-
-    function makeStore(state) {
-      return {
-        name: state.name,
-        keyPath: state.keyPath,
-        autoIncrement: false,
-        createIndex: function() { /* no-op */ },
-        index: function() { fail('index() nicht unterstützt'); },
-        get: function(key) {
-          var k = String(key);
-          return FakeRequest(state.data[k] ? clone(state.data[k]) : undefined);
-        },
-        getAll: function() {
-          return FakeRequest(Object.keys(state.data).map(function(k){ return clone(state.data[k]); }));
-        },
-        put: function(value, key) {
-          var k = key !== undefined ? String(key)
-                : (state.keyPath && value && value[state.keyPath] != null)
-                  ? String(value[state.keyPath]) : null;
-          if (k === null) fail('put ohne key/keyPath');
-          state.data[k] = clone(value);
-          syncToParent();
-          return FakeRequest(k);
-        },
-        add: function(value, key) {
-          var k = key !== undefined ? String(key)
-                : (state.keyPath && value && value[state.keyPath] != null)
-                  ? String(value[state.keyPath]) : null;
-          if (k === null) fail('add ohne key/keyPath');
-          if (k in state.data) { var e = new Error('Key existiert'); e.name='ConstraintError'; throw e; }
-          state.data[k] = clone(value);
-          syncToParent();
-          return FakeRequest(k);
-        },
-        'delete': function(key) {
-          delete state.data[String(key)];
-          syncToParent();
-          return FakeRequest(undefined);
-        },
-        clear: function() {
-          state.data = {};
-          syncToParent();
-          return FakeRequest(undefined);
-        },
-        count: function() { return FakeRequest(Object.keys(state.data).length); }
-      };
-    }
-
-    var readyPromise = rpc('idb.getAll', []).then(function(plain) {
-      if (plain && typeof plain === 'object') {
-        for (var n in plain) {
-          var dbState = { version: plain[n].version || 1, stores: {} };
-          var st = plain[n].stores || {};
-          for (var s in st) {
-            dbState.stores[s] = { name: s, keyPath: st[s].keyPath, data: st[s].data || {} };
-          }
-          dbs[n] = dbState;
-        }
-      }
-    }, function(){});
-
-    function open(name, version) {
-      name = String(name);
-      var req = { onupgradeneeded: null, onsuccess: null, onerror: null, result: null };
-      readyPromise.then(function() {
-        var existing = dbs[name];
-        var needUpgrade = !existing || (version && version > (existing.version || 1));
-        var state = existing || { version: version || 1, stores: {} };
-        if (needUpgrade) state.version = version || 1;
-        dbs[name] = state;
-
-        var dbObj = {
-          name: name,
-          version: state.version,
-          objectStoreNames: {
-            contains: function(n) { return n in state.stores; },
-            item: function(i) { return Object.keys(state.stores)[i] || null; },
-            get length() { return Object.keys(state.stores).length; }
-          },
-          createObjectStore: function(storeName, opts) {
-            var st = { name: storeName, keyPath: opts && opts.keyPath || null, data: {} };
-            state.stores[storeName] = st;
-            return makeStore(st);
-          },
-          deleteObjectStore: function(storeName) {
-            delete state.stores[storeName];
-            syncToParent();
-          },
-          transaction: function(storeNames, mode) {
-            if (typeof storeNames === 'string') storeNames = [storeNames];
-            var tx = {
-              mode: mode || 'readonly',
-              oncomplete: null,
-              onerror: null,
-              onabort: null,
-              objectStore: function(n) {
-                var st = state.stores[n];
-                if (!st) fail('objectStore ' + n + ' nicht gefunden');
-                return makeStore(st);
-              },
-              abort: function() { setTimeout(function(){ if (tx.onabort) tx.onabort(); }, 0); }
-            };
-            setTimeout(function() { if (tx.oncomplete) tx.oncomplete(); }, 0);
-            return tx;
-          },
-          close: function() {}
-        };
-
-        req.result = dbObj;
-        if (needUpgrade) {
-          setTimeout(function() {
-            if (req.onupgradeneeded) req.onupgradeneeded({ target: req, oldVersion: 0, newVersion: state.version });
-            if (req.onsuccess) req.onsuccess({ target: req });
-          }, 0);
-        } else {
-          setTimeout(function() { if (req.onsuccess) req.onsuccess({ target: req }); }, 0);
-        }
-      });
-      return req;
-    }
-
-    return { open: open, deleteDatabase: function(name) { delete dbs[name]; syncToParent(); return FakeRequest(undefined); } };
-  }
-
-  /* ---- Installation der Shims mit try/catch-Schutz ---- */
-  try {
-    Object.defineProperty(window, 'localStorage', { value: makeStorage('local'), configurable: true });
-    Object.defineProperty(window, 'sessionStorage', { value: makeStorage('session'), configurable: true });
-  } catch (e) { /* falls nicht überschreibbar: still ignorieren */ }
-
-  try {
-    var fakeIdb = new FakeIDB();
-    Object.defineProperty(window, 'indexedDB', { value: fakeIdb, configurable: true });
-    Object.defineProperty(window, 'IDBKeyRange', {
-      value: {
-        only: function(v){ return { only: v }; },
-        lowerBound: function(v){ return { lower: v }; },
-        upperBound: function(v){ return { upper: v }; },
-        bound: function(l,u){ return { lower: l, upper: u }; }
-      }, configurable: true
-    });
-  } catch (e) { /* still */ }
-
-  /* ---- Konsole / Errors ---- */
-  function stringify(v) {
-    try {
-      if (v === undefined) return 'undefined';
-      if (v === null) return 'null';
-      if (v instanceof Error) return v.name + ': ' + v.message;
-      if (typeof v === 'string') return v;
-      if (typeof v === 'function') return String(v);
-      if (typeof v === 'symbol') return String(v);
-      if (typeof v === 'object') {
-        try { return JSON.stringify(v); } catch (e) { return String(v); }
-      }
-      return String(v);
-    } catch (e) { return '[unlesbar]'; }
-  }
-  function send(level, args) {
-    try {
-      parent.postMessage({
-        __editorConsole: true,
-        level: level,
-        time: Date.now(),
-        args: args.map(stringify)
-      }, '*');
-    } catch (e) {}
-  }
-  ['log','info','warn','error','debug'].forEach(function(level) {
-    var orig = console[level];
-    console[level] = function() {
-      var args = Array.prototype.slice.call(arguments);
-      send(level === 'debug' ? 'log' : level, args);
-      if (orig) { try { orig.apply(console, args); } catch (e) {} }
-    };
-  });
-  window.addEventListener('error', function(e) {
-    var loc = e.filename ? ' (' + e.filename + ':' + e.lineno + ':' + e.colno + ')' : '';
-    send('error', [e.message + loc]);
-  });
-  window.addEventListener('unhandledrejection', function(e) {
-    var r = e.reason;
-    var msg = (r && r.message) ? r.message : String(r);
-    send('error', ['Unhandled promise rejection: ' + msg]);
-  });
-})();
-</script>`;
+    const instrumentation = getIFrameInstrumentation( nonce ); // @see iFrameInstrumentation.js
+    
 
     const headM = /<head[^>]*>/i.exec(userHtml);
     if (headM) {
@@ -2162,7 +1861,6 @@ body.minimap-dragging * {
     if (showPreview) togglePreview();
   });
 
-  /* Nachrichten aus dem Vorschau-iframe empfangen (Konsole) */
   window.addEventListener('message', (e) => {
     const data = e.data;
     if (!data || !data.__editorConsole) return;
@@ -2404,7 +2102,9 @@ body.minimap-dragging * {
 
   function loadHistoryVersion(v) {
     if (!v || typeof v.text !== 'string') return;
+    commitUndoNow();
     setValue(v.text);
+    lastKnownValue = v.text;
     closeAllDropdowns();
     toast('Version geladen');
   }
@@ -2492,9 +2192,12 @@ body.minimap-dragging * {
       const text = await navigator.clipboard.readText();
       if (text) {
         if (replace) {
+          commitUndoNow();
           setValue(text);
+          lastKnownValue = text;
           toast('Eingefügt (ersetzt)');
         } else {
+          commitUndoNow();
           insertText(text);
           toast('Eingefügt');
         }
@@ -2530,7 +2233,9 @@ body.minimap-dragging * {
     if (!before.trim()) return;
     const after = formatDoc(before);
     if (after === before) { toast('Bereits formatiert'); return; }
+    commitUndoNow();
     setValue(after);
+    lastKnownValue = after;
     toast('Formatiert');
   });
 
@@ -2678,7 +2383,9 @@ body.minimap-dragging * {
     const matches = before.match(re);
     if (!matches) { toast('Nicht gefunden'); return; }
     const after = before.replace(re, () => replaceInput.value);
+    commitUndoNow();
     setValue(after);
+    lastKnownValue = after;
     toast(matches.length + ' Ersetzung' + (matches.length === 1 ? '' : 'en'));
   }
 
@@ -2688,7 +2395,9 @@ body.minimap-dragging * {
   function loadFile(file) {
     const reader = new FileReader();
     reader.onload = async () => {
+      commitUndoNow();
       setValue(String(reader.result));
+      lastKnownValue = editor.value;
       toast('Geladen: ' + file.name);
       await addHistoryVersion(editor.value);
       await refreshHistoryList();
@@ -2724,6 +2433,7 @@ body.minimap-dragging * {
     if (f) { loadFile(f); return; }
     const text = e.dataTransfer.getData('text/plain');
     if (text) {
+      commitUndoNow();
       insertText(text);
       toast('Text eingefügt');
       await addHistoryVersion(editor.value);
@@ -2734,13 +2444,32 @@ body.minimap-dragging * {
   /* =====================================================================
      Editor-Events
      ===================================================================== */
-  editor.addEventListener('input', updateHighlight);
+  editor.addEventListener('input', () => {
+    updateHighlight();
+    scheduleUndoCommit();
+  });
   editor.addEventListener('scroll', syncScroll, { passive: true });
 
   editor.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       e.preventDefault();
       insertText('  ');
+      return;
+    }
+    // Undo / Redo
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'z' || e.key === 'Z')) {
+      e.preventDefault();
+      performUndo();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+      e.preventDefault();
+      performRedo();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'y' || e.key === 'Y')) {
+      e.preventDefault();
+      performRedo();
       return;
     }
     if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
@@ -2787,7 +2516,6 @@ body.minimap-dragging * {
      Persistente Optionen beim Start anwenden
      ===================================================================== */
   (function applyInitialOptions() {
-    // Zeilennummern
     if (showLineNumbers) {
       gutter.hidden = false;
       const btn = document.getElementById('btnLineNumbers');
@@ -2795,7 +2523,6 @@ body.minimap-dragging * {
       btn.querySelector('.check').hidden = false;
     }
 
-    // Minimap
     if (showMinimap) {
       minimap.hidden = false;
       const btn = document.getElementById('btnMinimap');
@@ -2810,6 +2537,107 @@ body.minimap-dragging * {
 
   updateInfo();
 
+})();
+</script>
+
+<script>
+/* =====================================================================
+   PWA: Service-Worker-Registrierung + Install-Prompt
+   ===================================================================== */
+(function () {
+  'use strict';
+
+  if (!('serviceWorker' in navigator)) return;
+
+  /* --- Service Worker registrieren (erst nach load, damit die Seite
+         beim ersten Besuch nicht ausgebremst wird) --- */
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('sw.js', { scope: './' })
+      .then((reg) => {
+        // Auf Updates prüfen
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              // Neue Version bereit – sanfter Hinweis
+              showPwaToast('Neue Version verfügbar – bitte Seite neu laden.');
+            }
+          });
+        });
+      })
+      .catch((err) => {
+        console.warn('Service-Worker-Registrierung fehlgeschlagen:', err);
+      });
+  });
+
+  /* --- Installations-Prompt (Chrome / Edge / Android) --- */
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Schwebenden „Installieren"-Button anzeigen
+    if (!document.getElementById('pwaInstallBtn')) {
+      const btn = document.createElement('button');
+      btn.id = 'pwaInstallBtn';
+      btn.type = 'button';
+      btn.title = 'Editor als App installieren';
+      btn.setAttribute('aria-label', 'Editor als App installieren');
+      btn.innerHTML = '<i class="bi bi-download" aria-hidden="true"></i> App installieren';
+      Object.assign(btn.style, {
+        position: 'fixed',
+        right: '16px',
+        bottom: '16px',
+        zIndex: '150',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '10px 14px',
+        font: 'inherit',
+        fontSize: '13.5px',
+        color: '#0f1116',
+        background: '#7ee787',
+        border: '0',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        boxShadow: '0 6px 20px rgba(0,0,0,.35)'
+      });
+
+      btn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        try {
+          await deferredPrompt.userChoice;
+        } catch (e) { /* ignore */ }
+        deferredPrompt = null;
+        btn.remove();
+      });
+
+      document.body.appendChild(btn);
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    const btn = document.getElementById('pwaInstallBtn');
+    if (btn) btn.remove();
+    showPwaToast('Editor wurde installiert.');
+  });
+
+  /* --- Kleiner Toast-Helper (nutzt den bestehenden #toast, falls vorhanden) --- */
+  function showPwaToast(msg) {
+    const existing = document.getElementById('toast');
+    if (existing) {
+      existing.textContent = msg;
+      existing.classList.add('show');
+      clearTimeout(showPwaToast._t);
+      showPwaToast._t = setTimeout(() => existing.classList.remove('show'), 2600);
+    } else {
+      console.log('[PWA]', msg);
+    }
+  }
 })();
 </script>
 </body>

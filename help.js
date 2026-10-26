@@ -27,6 +27,11 @@
 
 <h3><i class="bi bi-pencil-square" aria-hidden="true"></i> Bearbeiten</h3>
 <dl class="help-def">
+
+  <dt>Rückgängig</dt>
+  <dd>Macht maximal die letzten 20 Arbeitsschritte rückgängig.</dd>
+  <dt>Wiederherstellen</dt>
+  <dd>Stellt maximal die letzten 20 Arbeitsschritte wieder her.</dd>
   <dt>Suchen / Ersetzen</dt>
   <dd>Einfache Textsuche, Groß-/Kleinschreibung wird ignoriert. Kein Regex, keine Wortgrenzen. <kbd>Strg</kbd>/<kbd>⌘</kbd>+<kbd>Enter</kbd> im Suchfeld springt zum nächsten Treffer, im Ersetzen-Feld ersetzt den aktuellen Treffer. <kbd>Alle Ersetzen</kbd> ersetzt sämtliche Vorkommen.</dd>
   <dt>Formatieren</dt>
@@ -58,7 +63,7 @@
 <h3><i class="bi bi-clock-history" aria-hidden="true"></i> Verlauf</h3>
 <dl class="help-def">
   <dt>Version speichern</dt>
-  <dd>Speichert den aktuellen Editorinhalt als Version. Maximal 20 Versionen; Duplikate werden per FNV-Hash erkannt und nur im Zeitstempel aktualisiert. Gespeichert in IndexedDB des Browsers.</dd>
+  <dd>Speichert den aktuellen Editorinhalt als Version. Gespeichert wird außerdem beim Laden, Einfügen und Ersetzen von Dateien.</dd>
   <dt>Version laden</dt>
   <dd>Klick auf einen Eintrag lädt die Version zurück in den Editor. Der aktuelle Inhalt wird dabei überschrieben.</dd>
 </dl>
