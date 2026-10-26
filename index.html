@@ -36,27 +36,14 @@
   }
 
   /* ---------- Dropdown ---------- */
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
+  .dropdown { position: relative; display: inline-block; }
   .dropdown-toggle {
     -webkit-tap-highlight-color: transparent;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font: inherit;
-    font-size: 14px;
-    padding: 7px 12px;
-    min-height: 36px;
-    color: #cfd6e4;
-    background: #1d2230;
-    border: 1px solid #2b3242;
-    border-radius: 7px;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-    line-height: 1;
+    display: inline-flex; align-items: center; gap: 6px;
+    font: inherit; font-size: 14px; padding: 7px 12px; min-height: 36px;
+    color: #cfd6e4; background: #1d2230; border: 1px solid #2b3242;
+    border-radius: 7px; cursor: pointer; user-select: none;
+    white-space: nowrap; line-height: 1;
   }
   .dropdown-toggle i { font-size: 1.15rem; line-height: 1; }
   .dropdown-toggle .caret { font-size: 0.75rem; margin-left: 2px; opacity: 0.7; }
@@ -64,91 +51,109 @@
   .dropdown-toggle:active { background: #323b50; }
 
   .dropdown-menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    min-width: 220px;
-    background: #1d2230;
-    border: 1px solid #2b3242;
-    border-radius: 8px;
-    padding: 5px;
+    position: absolute; top: calc(100% + 4px); left: 0;
+    min-width: 220px; background: #1d2230; border: 1px solid #2b3242;
+    border-radius: 8px; padding: 5px;
     box-shadow: 0 8px 24px rgba(0,0,0,.45);
-    z-index: 50;
-    display: none;
+    z-index: 50; display: none;
   }
   .dropdown.open .dropdown-menu { display: block; }
 
   .dropdown-menu button {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    font: inherit;
-    font-size: 13.5px;
-    text-align: left;
-    padding: 8px 10px;
-    color: #cfd6e4;
-    background: transparent;
-    border: 0;
-    border-radius: 6px;
-    cursor: pointer;
-    white-space: nowrap;
-    line-height: 1;
-    min-height: 34px;
+    display: flex; align-items: self-start; gap: 10px; width: 100%;
+    font: inherit; font-size: 13.5px; text-align: left; padding: 8px 10px;
+    color: #cfd6e4; background: transparent; border: 0; border-radius: 6px;
+    cursor: pointer; white-space: nowrap; line-height: 1; min-height: 34px;
   }
   .dropdown-menu button i { font-size: 1.05rem; width: 20px; text-align: center; }
   .dropdown-menu button:hover { background: #2a3142; }
   .dropdown-menu button .check {
-    margin-left: auto;
-    color: #7ee787;
-    font-size: 1rem;
+    margin-left: auto; color: #7ee787; font-size: 1rem;
   }
-  .dropdown-menu .sep {
-    height: 1px;
-    background: #2b3242;
-    margin: 5px 4px;
+  .dropdown-menu .sep { height: 1px; background: #2b3242; margin: 5px 4px; }
+
+  /* ---------- Info-Dropdown ---------- */
+  .info-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    font-size: 13.5px; color: #cfd6e4; border-radius: 6px; cursor: default;
+  }
+  .info-row i { font-size: 1.05rem; width: 20px; text-align: center; }
+  .info-row .info-value {
+    margin-left: auto; color: #7ee787;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px; font-weight: 600;
+  }
+
+  /* ---------- Verlauf ---------- */
+  .history-list {
+    max-height: 320px; overflow-y: auto; margin: 0 -2px; padding: 0 2px;
+  }
+  .history-list::-webkit-scrollbar { width: 6px; }
+  .history-list::-webkit-scrollbar-thumb { background: #2b3242; border-radius: 3px; }
+
+  .history-item {
+    display: flex; flex-direction: column; gap: 3px; padding: 7px 10px;
+    border-radius: 6px; cursor: pointer; border: 0; background: transparent;
+    text-align: left; width: 100%; font: inherit; color: #cfd6e4; white-space: normal;
+  }
+  .history-item:hover { background: #2a3142; }
+  .history-item .history-name {
+    font-size: 13px; color: #e6edf3; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; max-width: 260px; display: flex;
+    align-items: center; gap: 8px;
+  }
+  .history-item .history-name .version-num {
+    color: #7ee787; font-family: ui-monospace, monospace; font-size: 12px;
+    flex-shrink: 0; font-weight: 600;
+  }
+  .history-item .history-meta {
+    font-size: 11px; color: #7d8590;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px;
+  }
+  .history-empty {
+    padding: 14px 10px; font-size: 12.5px; color: #7d8590;
+    text-align: center; line-height: 1.5;
   }
 
   /* ---------- Suchleiste ---------- */
-  .findbar input {
-    flex: 1 1 130px;
-    min-width: 0;
-    padding: 7px 9px;
-    font: inherit;
-    font-size: 13px;
-    color: #d7dce5;
-    background: #0e1117;
-    border: 1px solid #2b3242;
-    border-radius: 7px;
-    outline: none;
+  .findbar { align-items: flex-start; }
+
+  .findbar textarea {
+    flex: 1 1 130px; min-width: 0; padding: 7px 9px; font: inherit; font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #d7dce5; background: #0e1117; border: 1px solid #2b3242;
+    border-radius: 7px; outline: none; resize: none; min-height: 34px;
+    max-height: 120px; line-height: 1.4; white-space: pre; overflow: auto;
+    align-self: flex-start;
   }
-  .findbar input:focus { border-color: #3b82f6; }
+  .findbar textarea:focus { border-color: #3b82f6; }
+  .findbar textarea::placeholder { color: #6e7681; }
+
   .findbar button {
     -webkit-tap-highlight-color: transparent;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font: inherit;
-    font-size: 14px;
-    padding: 6px 8px;
-    min-width: 36px;
-    min-height: 34px;
-    color: #cfd6e4;
-    background: #1d2230;
-    border: 1px solid #2b3242;
-    border-radius: 7px;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-    line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: inherit; font-size: 14px; padding: 6px 8px; min-width: 36px; min-height: 34px;
+    color: #cfd6e4; background: #1d2230; border: 1px solid #2b3242;
+    border-radius: 7px; cursor: pointer; user-select: none;
+    white-space: nowrap; line-height: 1; align-self: flex-start;
   }
   .findbar button i { font-size: 1.05rem; line-height: 1; }
   .findbar button:hover { background: #262d3e; }
 
+  /* ---------- Main Area (Editor + Panels) ---------- */
+  .main-area {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   /* ---------- Editor ---------- */
   .editor-wrap {
     position: relative;
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-height: 0;
     overflow: hidden;
     background: #0f1116;
@@ -157,71 +162,239 @@
 
   /* Zeilennummern */
   .gutter {
-    flex: 0 0 auto;
-    width: 48px;
-    overflow: hidden;
-    background: #0c0e13;
-    border-right: 1px solid #232833;
-    position: relative;
-    z-index: 2;
+    flex: 0 0 auto; width: 48px; overflow: hidden;
+    background: #0c0e13; border-right: 1px solid #232833;
+    position: relative; z-index: 2;
   }
   .gutter pre {
-    margin: 0;
-    padding: 12px 8px 48px;
+    margin: 0; padding: 12px 8px 48px;
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-    font-size: 14px;
-    line-height: 1.55;
-    text-align: right;
-    color: #4b5566;
-    white-space: pre;
-    user-select: none;
-    pointer-events: none;
+    font-size: 14px; line-height: 1.55; text-align: right;
+    color: #4b5566; white-space: pre; user-select: none; pointer-events: none;
   }
 
   .code-area {
-    position: relative;
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
+    position: relative; flex: 1 1 auto; min-width: 0; overflow: hidden;
   }
 
   .code-area pre,
   .code-area textarea {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    padding: 12px 12px 48px;
-    border: 0;
-    outline: 0;
+    position: absolute; inset: 0; margin: 0; padding: 12px 12px 48px;
+    border: 0; outline: 0;
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-    font-size: 14px;
-    line-height: 1.55;
-    letter-spacing: 0;
-    tab-size: 2;
-    -moz-tab-size: 2;
-    white-space: pre;
-    overflow-wrap: normal;
-    word-break: normal;
+    font-size: 14px; line-height: 1.55; letter-spacing: 0; tab-size: 2; -moz-tab-size: 2;
+    white-space: pre; overflow-wrap: normal; word-break: normal;
   }
-
-  .code-area pre {
-    overflow: hidden;
-    pointer-events: none;
-    color: #d7dce5;
-    z-index: 0;
-  }
-
+  .code-area pre { overflow: hidden; pointer-events: none; color: #d7dce5; z-index: 0; }
   .code-area textarea {
-    overflow: auto;
-    resize: none;
-    background: transparent;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    caret-color: #7ee787;
-    z-index: 1;
+    overflow: auto; resize: none; background: transparent;
+    color: transparent; -webkit-text-fill-color: transparent;
+    caret-color: #7ee787; z-index: 1;
   }
   .code-area textarea::selection      { background: rgba(88,140,255,.35); }
   .code-area textarea::-moz-selection { background: rgba(88,140,255,.35); }
+
+  /* ---------- Panels (Konsole / Vorschau) ---------- */
+  .console-panel,
+  .preview-panel {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .console-panel {
+    background: #0c0e13;
+    border-bottom: 1px solid #232833;
+  }
+
+  .preview-panel {
+    background: #ffffff;
+    border-top: 1px solid #232833;
+  }
+
+  .panel-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: #151821;
+    border-bottom: 1px solid #232833;
+    min-height: 32px;
+  }
+
+  .preview-panel .panel-header {
+    border-bottom: 1px solid #232833;
+  }
+
+  .panel-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #cfd6e4;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .panel-title i { font-size: 1rem; }
+
+  .panel-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+  }
+
+  .panel-btn {
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    min-height: 26px;
+    padding: 2px 6px;
+    color: #cfd6e4;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .panel-btn i { font-size: 0.95rem; }
+  .panel-btn:hover { background: #2a3142; border-color: #2b3242; }
+
+  /* --- Konsole --- */
+  .console-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 4px 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .console-body::-webkit-scrollbar { width: 8px; }
+  .console-body::-webkit-scrollbar-thumb { background: #2b3242; border-radius: 4px; }
+
+  .console-empty {
+    padding: 20px 10px;
+    text-align: center;
+    color: #6e7681;
+    font-style: italic;
+  }
+
+  .console-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 3px 10px;
+    border-left: 3px solid transparent;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .console-msg:hover { background: rgba(255, 255, 255, 0.03); }
+
+  .console-msg.level-log    { border-left-color: #6e7681; }
+  .console-msg.level-info   { border-left-color: #79c0ff; background: rgba(121, 192, 255, 0.04); }
+  .console-msg.level-warn   { border-left-color: #d29922; background: rgba(210, 153, 34, 0.06); }
+  .console-msg.level-error  { border-left-color: #f85149; background: rgba(248, 81, 73, 0.08); }
+
+  .console-time {
+    flex: 0 0 auto;
+    color: #4b5566;
+    font-size: 11px;
+    padding-top: 2px;
+  }
+
+  .console-level {
+    flex: 0 0 auto;
+    padding: 0px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+    min-width: 42px;
+    text-align: center;
+  }
+  .level-log .console-level   { background: #21262d; color: #8b949e; }
+  .level-info .console-level  { background: #1f3a5f; color: #79c0ff; }
+  .level-warn .console-level  { background: #3d2f00; color: #d29922; }
+  .level-error .console-level { background: #4a1517; color: #f85149; }
+
+  .console-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: #d7dce5;
+  }
+  .level-warn .console-text  { color: #e3b341; }
+  .level-error .console-text { color: #ff7b72; }
+
+  .console-copy {
+    flex: 0 0 auto;
+    background: transparent;
+    border: 1px solid #2b3242;
+    color: #8b949e;
+    border-radius: 4px;
+    padding: 0px 5px;
+    font-size: 11px;
+    line-height: 1;
+    min-height: 20px;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.12s, color 0.12s, background 0.12s;
+  }
+  .console-msg:hover .console-copy { opacity: 1; }
+  .console-copy:hover { color: #e6edf3; background: #2a3142; }
+
+  /* --- Vorschau --- */
+  .preview-panel iframe {
+    flex: 1 1 auto;
+    width: 100%;
+    border: 0;
+    background: #ffffff;
+    min-height: 0;
+    display: block;
+  }
+
+  /* Vorschau-Panel im Vollbild */
+  .preview-panel:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    background: #ffffff;
+  }
+  .preview-panel:fullscreen .panel-header {
+    background: #151821;
+  }
+
+  /* ---------- Minimap ---------- */
+  .minimap {
+    position: relative; flex: 0 0 auto; width: 82px;
+    background: #0c0e13; border-left: 1px solid #232833;
+    overflow: hidden; cursor: pointer; user-select: none; -webkit-user-select: none;
+    touch-action: none;
+  }
+  .minimap canvas {
+    display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  }
+  .minimap-viewport {
+    position: absolute; left: 0; right: 0;
+    background: rgba(88, 140, 255, 0.10);
+    border-top: 1px solid rgba(88, 140, 255, 0.35);
+    border-bottom: 1px solid rgba(88, 140, 255, 0.35);
+    pointer-events: none; transition: background 0.12s;
+  }
+  .minimap:hover .minimap-viewport { background: rgba(88, 140, 255, 0.18); }
+
+  body.minimap-dragging,
+  body.minimap-dragging * {
+    cursor: grabbing !important;
+    user-select: none !important;
+  }
 
   /* ---------- Token-Farben ---------- */
   .t-comment { color: #6e7681; font-style: italic; }
@@ -240,43 +413,26 @@
 
   /* ---------- Drag & Drop Overlay ---------- */
   .drop-overlay {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(10, 14, 22, .82);
-    border: 3px dashed #3b82f6;
-    color: #93c5fd;
-    font-size: 18px;
-    font-weight: 600;
-    z-index: 100;
-    pointer-events: none;
-    text-align: center;
-    padding: 20px;
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(10, 14, 22, .82); border: 3px dashed #3b82f6;
+    color: #93c5fd; font-size: 18px; font-weight: 600;
+    z-index: 100; pointer-events: none; text-align: center; padding: 20px;
   }
   .drop-overlay.show { display: flex; }
 
   /* ---------- Toast ---------- */
   #toast {
-    position: fixed;
-    left: 50%;
-    bottom: 24px;
-    transform: translate(-50%, 20px);
-    background: #1d2433;
-    color: #e6edf3;
-    border: 1px solid #2f3a4d;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .2s, transform .2s;
-    z-index: 200;
-    max-width: 90vw;
-    text-align: center;
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px);
+    background: #1d2433; color: #e6edf3; border: 1px solid #2f3a4d;
+    padding: 10px 16px; border-radius: 8px; font-size: 13px;
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    z-index: 200; max-width: 90vw; text-align: center;
   }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* Dropdown, das rechtsbündig öffnet */
+  .dropdown.align-right .dropdown-menu { left: auto; right: 0; }
+  .dropdown-menu { max-width: calc(100vw - 16px); }
 
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
@@ -285,6 +441,9 @@
     .gutter pre { font-size: 16px; }
     .dropdown-toggle { padding: 8px 10px; }
     .gutter { width: 42px; }
+    .dropdown.align-right .dropdown-menu { left: auto; right: 0; }
+    .findbar textarea { font-size: 16px; }
+    .minimap { width: 58px; }
   }
 </style>
 </head>
@@ -331,7 +490,6 @@
   <div class="dropdown" id="ddEdit">
     <button class="dropdown-toggle" id="ddEditToggle" aria-haspopup="true" aria-expanded="false">
       <i class="bi bi-pencil-square" aria-hidden="true"></i>
-      <span>Bearbeiten</span>
       <i class="bi bi-chevron-down caret" aria-hidden="true"></i>
     </button>
     <div class="dropdown-menu" role="menu" aria-labelledby="ddEditToggle">
@@ -349,13 +507,66 @@
         <span>Zeilennummern anzeigen</span>
         <i class="bi bi-check-lg check" hidden aria-hidden="true"></i>
       </button>
+      <div class="sep" role="separator"></div>
+      <div class="info-row" role="menuitem" tabindex="-1">
+        <i class="bi bi-list-ol" aria-hidden="true"></i>
+        <span>Zeilen</span>
+        <span class="info-value" id="infoLines">0</span>
+      </div>
+      <div class="info-row" role="menuitem" tabindex="-1">
+        <i class="bi bi-textarea-t" aria-hidden="true"></i>
+        <span>Zeichen</span>
+        <span class="info-value" id="infoChars">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dropdown: Ansicht -->
+  <div class="dropdown align-right" id="ddView">
+    <button class="dropdown-toggle" id="ddViewToggle" aria-haspopup="true" aria-expanded="false">
+      <i class="bi bi-eye" aria-hidden="true"></i>
+      <i class="bi bi-chevron-down caret" aria-hidden="true"></i>
+    </button>
+    <div class="dropdown-menu" role="menu" aria-labelledby="ddViewToggle">
+      <button id="btnMinimap" role="menuitemcheckbox" aria-checked="false">
+        <i class="bi bi-map" aria-hidden="true"></i>
+        <span>Overview Minimap</span>
+        <i class="bi bi-check-lg check" id="mmCheck" hidden aria-hidden="true"></i>
+      </button>
+      <div class="sep" role="separator"></div>
+      <button id="btnPreview" role="menuitemcheckbox" aria-checked="false">
+        <i class="bi bi-window" aria-hidden="true"></i>
+        <span>Vorschau</span>
+        <i class="bi bi-check-lg check" id="previewCheck" hidden aria-hidden="true"></i>
+      </button>
+      <button id="btnConsole" role="menuitemcheckbox" aria-checked="false">
+        <i class="bi bi-terminal" aria-hidden="true"></i>
+        <span>Konsole</span>
+        <i class="bi bi-check-lg check" id="consoleCheck" hidden aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Dropdown: Verlauf -->
+  <div class="dropdown align-right" id="ddHistory">
+    <button class="dropdown-toggle" id="ddHistoryToggle" aria-haspopup="true" aria-expanded="false">
+      <i class="bi bi-clock-history" aria-hidden="true"></i>
+      <i class="bi bi-chevron-down caret" aria-hidden="true"></i>
+    </button>
+    <div class="dropdown-menu" role="menu" aria-labelledby="ddHistoryToggle" style="min-width: 280px;">
+      <button id="btnSaveVersion" role="menuitem">
+        <i class="bi bi-bookmark-plus" aria-hidden="true"></i>
+        <span>Version Speichern</span>
+      </button>
+      <div class="sep" role="separator"></div>
+      <div id="historyList" class="history-list"></div>
     </div>
   </div>
 </div>
 
 <div class="findbar" id="findbar" hidden>
-  <input id="findInput" type="text" placeholder="Suchen …" autocomplete="off" spellcheck="false">
-  <input id="replaceInput" type="text" placeholder="Ersetzen …" autocomplete="off" spellcheck="false">
+  <textarea id="findInput" rows="1" placeholder="Suchen … (Strg+Enter)" autocomplete="off" spellcheck="false"></textarea>
+  <textarea id="replaceInput" rows="1" placeholder="Ersetzen … (Strg+Enter)" autocomplete="off" spellcheck="false"></textarea>
   <button id="btnFindNext" title="Nächster Treffer" aria-label="Nächster Treffer">
     <i class="bi bi-arrow-down" aria-hidden="true"></i> Finden
   </button>
@@ -370,13 +581,56 @@
   </button>
 </div>
 
-<div class="editor-wrap" id="editorWrap">
-  <div class="gutter" id="gutter" hidden>
-    <pre id="lineNumbers" aria-hidden="true"></pre>
+<div class="main-area" id="mainArea">
+  <!-- Konsole (obere Hälfte) -->
+  <div class="console-panel" id="consolePanel" hidden>
+    <div class="panel-header">
+      <span class="panel-title"><i class="bi bi-terminal" aria-hidden="true"></i> Konsole</span>
+      <div class="panel-actions">
+        <button class="panel-btn" id="btnClearConsole" title="Konsole leeren" aria-label="Konsole leeren">
+          <i class="bi bi-trash" aria-hidden="true"></i>
+        </button>
+        <button class="panel-btn" id="btnCloseConsole" title="Konsole schließen" aria-label="Konsole schließen">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+    <div class="console-body" id="consoleBody">
+      <div class="console-empty">Keine Meldungen.</div>
+    </div>
   </div>
-  <div class="code-area" id="codeArea">
-    <pre id="hl" aria-hidden="true"></pre>
-    <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Code-Editor"></textarea>
+
+  <div class="editor-wrap" id="editorWrap">
+    <div class="gutter" id="gutter" hidden>
+      <pre id="lineNumbers" aria-hidden="true"></pre>
+    </div>
+    <div class="code-area" id="codeArea">
+      <pre id="hl" aria-hidden="true"></pre>
+      <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Code-Editor"></textarea>
+    </div>
+    <div class="minimap" id="minimap" hidden aria-hidden="true">
+      <canvas id="minimapCanvas"></canvas>
+      <div class="minimap-viewport" id="minimapViewport"></div>
+    </div>
+  </div>
+
+  <!-- Vorschau (untere Hälfte) -->
+  <div class="preview-panel" id="previewPanel" hidden>
+    <div class="panel-header">
+      <span class="panel-title"><i class="bi bi-window" aria-hidden="true"></i> Vorschau</span>
+      <div class="panel-actions">
+        <button class="panel-btn" id="btnPreviewFullscreen" title="Vorschau im Vollbild" aria-label="Vorschau im Vollbild">
+          <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
+        </button>
+        <button class="panel-btn" id="btnRefreshPreview" title="Vorschau aktualisieren" aria-label="Vorschau aktualisieren">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+        </button>
+        <button class="panel-btn" id="btnClosePreview" title="Vorschau schließen" aria-label="Vorschau schließen">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+    <iframe id="previewFrame" title="HTML-Vorschau" sandbox="allow-scripts allow-modals"></iframe>
   </div>
 </div>
 
@@ -501,7 +755,6 @@
       if (lt === -1) { out += esc(code.slice(i)); break; }
       if (lt > i) out += esc(code.slice(i, lt));
 
-      /* Kommentar */
       if (code.startsWith('<!--', lt)) {
         const e = code.indexOf('-->', lt + 4);
         const end = e === -1 ? n : e + 3;
@@ -510,7 +763,6 @@
         continue;
       }
 
-      /* Doctype / <! ... > */
       if (code.startsWith('<!', lt)) {
         const e = code.indexOf('>', lt);
         const end = e === -1 ? n : e + 1;
@@ -519,11 +771,9 @@
         continue;
       }
 
-      /* Tag-Anfang */
       const m = /^<(\/?)([a-zA-Z][\w:-]*)/.exec(code.slice(lt, lt + 200));
       if (!m) { out += esc('<'); i = lt + 1; continue; }
 
-      /* Tag-Ende suchen (Anführungszeichen beachten) */
       let j = lt + m[0].length, q = null, end = -1;
       while (j < n) {
         const c = code[j];
@@ -537,7 +787,6 @@
       out += colorizeTag(code.slice(lt, end + 1));
       i = end + 1;
 
-      /* Eingebettetes <style> / <script> */
       const name = m[2].toLowerCase();
       if (!m[1] && (name === 'style' || name === 'script')) {
         const rest = code.slice(i);
@@ -550,7 +799,6 @@
     return out;
   }
 
-  /* Automatische Spracherkennung */
   function highlight(code) {
     const t = code.trim();
     if (t && t.indexOf('<') === -1) {
@@ -562,20 +810,18 @@
   }
 
   /* =====================================================================
-     Pretty-Format: CSS
+     Pretty-Format
      ===================================================================== */
   function formatCSS(src) {
     let out = '', indent = 0, i = 0;
     const n = src.length;
     let atLineStart = true;
-
     const pad  = () => '  '.repeat(indent);
     const write = (s) => { if (atLineStart) { out += pad(); atLineStart = false; } out += s; };
     const nl    = () => { out = out.replace(/[ \t]+$/, '') + '\n'; atLineStart = true; };
 
     while (i < n) {
       const c = src[i];
-
       if (c === '/' && src[i + 1] === '*') {
         const e = src.indexOf('*/', i + 2);
         const end = e === -1 ? n : e + 2;
@@ -595,28 +841,22 @@
       if (c === '{') { write(' {'); nl(); indent++; i++; continue; }
       if (c === '}') { nl(); indent = Math.max(0, indent - 1); write('}'); nl(); i++; continue; }
       if (c === ';') { write(';'); nl(); i++; continue; }
-
       write(c);
       i++;
     }
     return out.replace(/\n{3,}/g, '\n\n').trim();
   }
 
-  /* =====================================================================
-     Pretty-Format: JavaScript
-     ===================================================================== */
   function formatJS(src) {
     let out = '', indent = 0, i = 0, paren = 0;
     const n = src.length;
     let atLineStart = true;
-
     const pad   = () => '  '.repeat(indent);
     const write = (s) => { if (atLineStart) { out += pad(); atLineStart = false; } out += s; };
     const nl    = () => { out = out.replace(/[ \t]+$/, '') + '\n'; atLineStart = true; };
 
     while (i < n) {
       const c = src[i];
-
       if (c === '/' && src[i + 1] === '/') {
         let j = src.indexOf('\n', i);
         if (j === -1) j = n;
@@ -640,20 +880,16 @@
       }
       if (c === '(') { paren++; write('('); i++; continue; }
       if (c === ')') { paren = Math.max(0, paren - 1); write(')'); i++; continue; }
-
       if (c === '{') { write(' {'); nl(); indent++; i++; continue; }
-
       if (c === '}') {
         nl();
         indent = Math.max(0, indent - 1);
         write('}');
-        /* Folgt direkt etwas Anhängendes? */
         let j = i + 1;
         while (j < n && /[ \t]/.test(src[j])) j++;
         const nx = src[j];
         const tail = src.slice(j, j + 8);
         if (nx === ';' || nx === ',' || nx === ')' || nx === ']' || nx === '.' || nx === '(') {
-          /* gleiche Zeile weiter */
         } else if (/^(else|catch|finally)\b/.test(tail)) {
           write(' ');
         } else {
@@ -662,18 +898,13 @@
         i++;
         continue;
       }
-
       if (c === ';' && paren === 0) { write(';'); nl(); i++; continue; }
-
       write(c);
       i++;
     }
     return out.replace(/\n{3,}/g, '\n\n').trim();
   }
 
-  /* =====================================================================
-     Pretty-Format: HTML
-     ===================================================================== */
   const VOID_TAGS = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '));
 
   function collapseTag(t) {
@@ -708,14 +939,12 @@
         if (text) push(text);
       }
 
-      /* Kommentar */
       if (src.startsWith('<!--', lt)) {
         const e = src.indexOf('-->', lt);
         const end = e === -1 ? n : e + 3;
         push(collapseTag(src.slice(lt, end)));
         i = end; continue;
       }
-      /* Doctype / <! ... > */
       if (src.startsWith('<!', lt)) {
         const e = src.indexOf('>', lt);
         const end = e === -1 ? n : e + 1;
@@ -723,7 +952,6 @@
         i = end; continue;
       }
 
-      /* Tag-Ende suchen */
       let j = lt + 1, q = null, end = -1;
       while (j < n) {
         const c = src[j];
@@ -756,7 +984,6 @@
       push(collapseTag(raw));
       i = end + 1;
 
-      /* <style> / <script> Inhalt */
       if (name === 'style' || name === 'script') {
         const cm = new RegExp('</' + name + '\\s*>', 'i').exec(src.slice(i));
         const inner = cm ? src.slice(i, i + cm.index) : src.slice(i);
@@ -800,6 +1027,8 @@
   const dropOverlay  = document.getElementById('dropOverlay');
   const gutter       = document.getElementById('gutter');
   const lineNumbers  = document.getElementById('lineNumbers');
+  const infoLines    = document.getElementById('infoLines');
+  const infoChars    = document.getElementById('infoChars');
 
   let rafPending = false;
   let showLineNumbers = false;
@@ -810,6 +1039,7 @@
     if (showLineNumbers) {
       lineNumbers.scrollTop = editor.scrollTop;
     }
+    if (showMinimap) updateMinimapViewport();
   }
 
   function updateLineNumbers() {
@@ -821,6 +1051,13 @@
     lineNumbers.scrollTop = editor.scrollTop;
   }
 
+  function updateInfo() {
+    const v = editor.value;
+    const lines = v.length === 0 ? 1 : v.split('\n').length;
+    infoLines.textContent = lines.toLocaleString('de-DE');
+    infoChars.textContent = v.length.toLocaleString('de-DE');
+  }
+
   function updateHighlight() {
     if (rafPending) return;
     rafPending = true;
@@ -828,6 +1065,8 @@
       rafPending = false;
       hlEl.innerHTML = highlight(editor.value) + '\n';
       if (showLineNumbers) updateLineNumbers();
+      updateInfo();
+      if (showMinimap) drawMinimap();
       syncScroll();
     });
   }
@@ -838,6 +1077,7 @@
     editor.scrollLeft = 0;
     editor.setSelectionRange(0, 0);
     updateHighlight();
+    updateInfo();
   }
 
   function insertText(text) {
@@ -850,6 +1090,715 @@
       editor.setSelectionRange(s + text.length, s + text.length);
     }
     updateHighlight();
+  }
+
+  /* =====================================================================
+     Minimap
+     ===================================================================== */
+  const minimap         = document.getElementById('minimap');
+  const minimapCanvas   = document.getElementById('minimapCanvas');
+  const minimapViewport = document.getElementById('minimapViewport');
+  const minimapCtx      = minimapCanvas.getContext('2d');
+
+  const MM_PAD_Y      = 6;
+  const MM_LINE_H_MAX = 3;
+  const MM_LINE_H_MIN = 0.4;
+
+  let showMinimap       = false;
+  let minimapDragging   = false;
+  let minimapDragStartY = 0;
+  let minimapDragStartScroll = 0;
+
+  function getMinimapLineHeight(totalLines) {
+    const availH = minimap.clientHeight - MM_PAD_Y * 2;
+    if (availH <= 0) return MM_LINE_H_MAX;
+    return Math.max(MM_LINE_H_MIN, Math.min(MM_LINE_H_MAX, availH / Math.max(1, totalLines)));
+  }
+
+  function getMinimapLineColor(line) {
+    const t = line.trim();
+    if (!t) return null;
+    if (t.startsWith('//') || t.startsWith('/*') || t.startsWith('*') || t.startsWith('<!--')) return '#4b5566';
+    if (t.startsWith('</')) return '#5a8a6a';
+    if (t.startsWith('<')) return '#6eb882';
+    if (/^(const|let|var|function|return|if|else|for|while|class|import|export|async|await|try|catch|switch|case|break|continue|new|typeof|instanceof|this|super|throw|delete|void|do)\b/.test(t)) return '#c97a7a';
+    if (t.startsWith('@')) return '#d2a8ff';
+    if (/^[.#][-\w]+/.test(t)) return '#d2a8ff';
+    if (t.includes('{') && t.includes(':')) return '#7a9aca';
+    return '#8b949e';
+  }
+
+  function drawMinimap() {
+    if (!showMinimap) return;
+    const cssW = minimap.clientWidth;
+    const cssH = minimap.clientHeight;
+    if (cssW === 0 || cssH === 0) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const lines = editor.value.split('\n');
+    const totalLines = lines.length;
+    const lineH = getMinimapLineHeight(totalLines);
+
+    minimapCanvas.width  = Math.round(cssW * dpr);
+    minimapCanvas.height = Math.round(cssH * dpr);
+
+    minimapCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    minimapCtx.clearRect(0, 0, cssW, cssH);
+
+    const useText = lineH >= 1.6;
+    if (useText) {
+      minimapCtx.font = Math.max(1.2, Math.min(2.5, lineH - 0.3)) + 'px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+      minimapCtx.textBaseline = 'top';
+    }
+
+    const contentW = cssW - 4;
+
+    for (let i = 0; i < totalLines; i++) {
+      const line = lines[i];
+      const color = getMinimapLineColor(line);
+      if (!color) continue;
+
+      const y = MM_PAD_Y + i * lineH;
+      if (y > cssH) break;
+
+      const trimmed = line.trimStart();
+      if (!trimmed) continue;
+
+      const indent = line.length - trimmed.length;
+      minimapCtx.fillStyle = color;
+
+      if (useText) {
+        const x = 2 + Math.min(indent * 0.4, contentW * 0.3);
+        minimapCtx.fillText(trimmed, x, y, contentW - (x - 2));
+      } else {
+        const indentX = Math.min(indent * 0.3, contentW * 0.3);
+        const w = Math.min(trimmed.length * 0.6, contentW - indentX);
+        if (w > 0.3) {
+          minimapCtx.fillRect(2 + indentX, y + 0.1, w, Math.max(0.5, lineH * 0.8));
+        }
+      }
+    }
+  }
+
+  function updateMinimapViewport() {
+    if (!showMinimap) return;
+    const cssH = minimap.clientHeight;
+    if (cssH === 0) return;
+
+    const cs = getComputedStyle(editor);
+    const editorLineH = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) || 14) * 1.55;
+    const totalEditorLines = editor.value.split('\n').length;
+    const visibleEditorLines = editor.clientHeight / editorLineH;
+
+    if (visibleEditorLines >= totalEditorLines) {
+      minimapViewport.style.top = '0px';
+      minimapViewport.style.height = cssH + 'px';
+      return;
+    }
+
+    const lineH = getMinimapLineHeight(totalEditorLines);
+    const firstLine = editor.scrollTop / editorLineH;
+
+    const vpTop = MM_PAD_Y + firstLine * lineH;
+    const vpHeight = Math.min(cssH, Math.max(4, visibleEditorLines * lineH));
+    const maxTop = cssH - vpHeight;
+
+    minimapViewport.style.top    = Math.max(0, Math.min(maxTop, vpTop)) + 'px';
+    minimapViewport.style.height = vpHeight + 'px';
+  }
+
+  function minimapYToScrollTop(clientY) {
+    const rect = minimap.getBoundingClientRect();
+    const lines = editor.value.split('\n');
+    const lineH = getMinimapLineHeight(lines.length);
+    const yInMm = clientY - rect.top - MM_PAD_Y;
+    const lineIdx = yInMm / lineH;
+
+    const cs = getComputedStyle(editor);
+    const editorLineH = parseFloat(cs.lineHeight) || 22;
+    const visibleLines = editor.clientHeight / editorLineH;
+
+    const targetLine = Math.max(0, lineIdx - visibleLines / 2);
+    return targetLine * editorLineH;
+  }
+
+  function toggleMinimap() {
+    showMinimap = !showMinimap;
+    minimap.hidden = !showMinimap;
+    const btn = document.getElementById('btnMinimap');
+    const check = document.getElementById('mmCheck');
+    btn.setAttribute('aria-checked', String(showMinimap));
+    check.hidden = !showMinimap;
+
+    if (showMinimap) {
+      requestAnimationFrame(() => {
+        drawMinimap();
+        updateMinimapViewport();
+      });
+    }
+    toast(showMinimap ? 'Minimap an' : 'Minimap aus');
+  }
+
+  document.getElementById('btnMinimap').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMinimap();
+    closeAllDropdowns();
+  });
+
+  minimap.addEventListener('mousedown', (e) => {
+    if (!showMinimap) return;
+    e.preventDefault();
+    minimapDragging = true;
+    document.body.classList.add('minimap-dragging');
+
+    const vpRect = minimapViewport.getBoundingClientRect();
+    const onViewport = e.clientY >= vpRect.top && e.clientY <= vpRect.bottom;
+
+    if (onViewport) {
+      minimapDragStartY = e.clientY;
+      minimapDragStartScroll = editor.scrollTop;
+    } else {
+      editor.scrollTop = minimapYToScrollTop(e.clientY);
+      minimapDragStartY = e.clientY;
+      minimapDragStartScroll = editor.scrollTop;
+      syncScroll();
+    }
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!minimapDragging) return;
+    const dy = e.clientY - minimapDragStartY;
+    const lines = editor.value.split('\n');
+    const lineH = getMinimapLineHeight(lines.length);
+    const cs = getComputedStyle(editor);
+    const editorLineH = parseFloat(cs.lineHeight) || 22;
+    editor.scrollTop = minimapDragStartScroll + (dy / lineH) * editorLineH;
+    syncScroll();
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (minimapDragging) {
+      minimapDragging = false;
+      document.body.classList.remove('minimap-dragging');
+    }
+  });
+
+  minimap.addEventListener('touchstart', (e) => {
+    if (!showMinimap || e.touches.length !== 1) return;
+    e.preventDefault();
+    minimapDragging = true;
+    document.body.classList.add('minimap-dragging');
+    const touch = e.touches[0];
+    editor.scrollTop = minimapYToScrollTop(touch.clientY);
+    minimapDragStartY = touch.clientY;
+    minimapDragStartScroll = editor.scrollTop;
+    syncScroll();
+  }, { passive: false });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!minimapDragging || e.touches.length !== 1) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const dy = touch.clientY - minimapDragStartY;
+    const lines = editor.value.split('\n');
+    const lineH = getMinimapLineHeight(lines.length);
+    const cs = getComputedStyle(editor);
+    const editorLineH = parseFloat(cs.lineHeight) || 22;
+    editor.scrollTop = minimapDragStartScroll + (dy / lineH) * editorLineH;
+    syncScroll();
+  }, { passive: false });
+
+  document.addEventListener('touchend', () => {
+    if (minimapDragging) {
+      minimapDragging = false;
+      document.body.classList.remove('minimap-dragging');
+    }
+  });
+
+  let mmResizeRaf = false;
+  function scheduleMinimapResize() {
+    if (mmResizeRaf) return;
+    mmResizeRaf = true;
+    requestAnimationFrame(() => {
+      mmResizeRaf = false;
+      if (showMinimap) {
+        drawMinimap();
+        updateMinimapViewport();
+      }
+    });
+  }
+
+  if (typeof ResizeObserver !== 'undefined') {
+    const mmObserver = new ResizeObserver(scheduleMinimapResize);
+    mmObserver.observe(editorWrap);
+  }
+
+  /* =====================================================================
+     Konsole & Vorschau
+     ===================================================================== */
+  const consolePanel = document.getElementById('consolePanel');
+  const consoleBody  = document.getElementById('consoleBody');
+  const previewPanel = document.getElementById('previewPanel');
+  const previewFrame = document.getElementById('previewFrame');
+
+  let showConsole = false;
+  let showPreview = false;
+  let previewAutoOpenedConsole = false;
+
+  /* ---------- Konsole: Aktionen ---------- */
+  function clearConsoleMessages() {
+    consoleBody.innerHTML = '<div class="console-empty">Keine Meldungen.</div>';
+  }
+
+  function addConsoleMessage(level, args, time) {
+    level = (level || 'log').toLowerCase();
+    if (!['log', 'info', 'warn', 'error'].includes(level)) level = 'log';
+
+    const empty = consoleBody.querySelector('.console-empty');
+    if (empty) empty.remove();
+
+    const msg = document.createElement('div');
+    msg.className = 'console-msg level-' + level;
+
+    const timeEl = document.createElement('span');
+    timeEl.className = 'console-time';
+    const d = new Date(time || Date.now());
+    timeEl.textContent = d.toLocaleTimeString('de-DE', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+
+    const levelEl = document.createElement('span');
+    levelEl.className = 'console-level';
+    levelEl.textContent = level;
+
+    const textEl = document.createElement('span');
+    textEl.className = 'console-text';
+    textEl.textContent = (args && args.length) ? args.join(' ') : '';
+
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'console-copy';
+    copyBtn.title = 'In Zwischenablage kopieren';
+    copyBtn.setAttribute('aria-label', 'Meldung kopieren');
+    copyBtn.innerHTML = '<i class="bi bi-clipboard" aria-hidden="true"></i>';
+    copyBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      copyToClipboard(level.toUpperCase() + ': ' + ((args && args.length) ? args.join(' ') : ''));
+    });
+
+    msg.appendChild(timeEl);
+    msg.appendChild(levelEl);
+    msg.appendChild(textEl);
+    msg.appendChild(copyBtn);
+
+    const nearBottom = (consoleBody.scrollHeight - consoleBody.scrollTop - consoleBody.clientHeight) < 80;
+    consoleBody.appendChild(msg);
+    if (nearBottom) consoleBody.scrollTop = consoleBody.scrollHeight;
+
+    // Erste Fehlermeldung: Konsole automatisch öffnen
+    if (level === 'error' && showPreview && !showConsole && !previewAutoOpenedConsole) {
+      previewAutoOpenedConsole = true;
+      toggleConsole();
+    }
+
+    // Begrenzen
+    while (consoleBody.children.length > 500) {
+      consoleBody.removeChild(consoleBody.firstChild);
+    }
+  }
+
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('Meldung kopiert');
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        toast('Meldung kopiert');
+      } catch (err) {
+        toast('Kopieren fehlgeschlagen');
+      }
+      ta.remove();
+    }
+  }
+
+  function toggleConsole() {
+    showConsole = !showConsole;
+    consolePanel.hidden = !showConsole;
+    const btn = document.getElementById('btnConsole');
+    const check = document.getElementById('consoleCheck');
+    btn.setAttribute('aria-checked', String(showConsole));
+    check.hidden = !showConsole;
+    if (showConsole) {
+      consoleBody.scrollTop = consoleBody.scrollHeight;
+    }
+    toast(showConsole ? 'Konsole an' : 'Konsole aus');
+  }
+
+  document.getElementById('btnConsole').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleConsole();
+    closeAllDropdowns();
+  });
+
+  document.getElementById('btnClearConsole').addEventListener('click', () => {
+    clearConsoleMessages();
+    toast('Konsole geleert');
+  });
+
+  document.getElementById('btnCloseConsole').addEventListener('click', () => {
+    if (showConsole) toggleConsole();
+  });
+
+  /* ---------- Vorschau ---------- */
+  function buildPreviewSrcdoc(userHtml) {
+    const instrumentation = `
+<script>
+(function(){
+  function stringify(v) {
+    try {
+      if (v === undefined) return 'undefined';
+      if (v === null) return 'null';
+      if (v instanceof Error) return v.name + ': ' + v.message;
+      if (typeof v === 'string') return v;
+      if (typeof v === 'function') return String(v);
+      if (typeof v === 'symbol') return String(v);
+      if (typeof v === 'object') {
+        try { return JSON.stringify(v); } catch (e) { return String(v); }
+      }
+      return String(v);
+    } catch (e) { return '[unlesbar]'; }
+  }
+  function send(level, args) {
+    try {
+      parent.postMessage({
+        __editorConsole: true,
+        level: level,
+        time: Date.now(),
+        args: args.map(stringify)
+      }, '*');
+    } catch (e) {}
+  }
+  ['log','info','warn','error','debug'].forEach(function(level) {
+    var orig = console[level];
+    console[level] = function() {
+      var args = Array.prototype.slice.call(arguments);
+      send(level === 'debug' ? 'log' : level, args);
+      if (orig) { try { orig.apply(console, args); } catch (e) {} }
+    };
+  });
+  window.addEventListener('error', function(e) {
+    var loc = e.filename ? ' (' + e.filename + ':' + e.lineno + ':' + e.colno + ')' : '';
+    send('error', [e.message + loc]);
+  });
+  window.addEventListener('unhandledrejection', function(e) {
+    var r = e.reason;
+    var msg = (r && r.message) ? r.message : String(r);
+    send('error', ['Unhandled promise rejection: ' + msg]);
+  });
+})();
+</script>`;
+
+    const headM = /<head[^>]*>/i.exec(userHtml);
+    if (headM) {
+      const idx = headM.index + headM[0].length;
+      return userHtml.slice(0, idx) + instrumentation + userHtml.slice(idx);
+    }
+    const htmlM = /<html[^>]*>/i.exec(userHtml);
+    if (htmlM) {
+      const idx = htmlM.index + htmlM[0].length;
+      return userHtml.slice(0, idx) + '<head>' + instrumentation + '</head>' + userHtml.slice(idx);
+    }
+    return instrumentation + userHtml;
+  }
+
+  function updatePreview() {
+    previewAutoOpenedConsole = false;
+    previewFrame.srcdoc = buildPreviewSrcdoc(editor.value);
+  }
+
+  function togglePreview() {
+    showPreview = !showPreview;
+    previewPanel.hidden = !showPreview;
+    const btn = document.getElementById('btnPreview');
+    const check = document.getElementById('previewCheck');
+    btn.setAttribute('aria-checked', String(showPreview));
+    check.hidden = !showPreview;
+    if (showPreview) {
+      updatePreview();
+    } else {
+      previewFrame.srcdoc = '';
+    }
+    toast(showPreview ? 'Vorschau an' : 'Vorschau aus');
+  }
+
+  document.getElementById('btnPreview').addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePreview();
+    closeAllDropdowns();
+  });
+
+  document.getElementById('btnRefreshPreview').addEventListener('click', () => {
+    updatePreview();
+    toast('Vorschau aktualisiert');
+  });
+
+  document.getElementById('btnClosePreview').addEventListener('click', () => {
+    if (showPreview) togglePreview();
+  });
+
+  /* Nachrichten aus dem Vorschau-iframe empfangen */
+  window.addEventListener('message', (e) => {
+    const data = e.data;
+    if (!data || !data.__editorConsole) return;
+    addConsoleMessage(data.level, data.args, data.time);
+  });
+
+  /* ---------- Vorschau-Vollbild ---------- */
+  const previewFsBtn = document.getElementById('btnPreviewFullscreen');
+  const previewFsIcon = previewFsBtn.querySelector('i');
+
+  async function togglePreviewFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        // Nur das Vorschau-Panel in den Vollbildmodus versetzen
+        await previewPanel.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      toast('Vollbild nicht möglich');
+    }
+  }
+
+  previewFsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePreviewFullscreen();
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    const active = document.fullscreenElement === previewPanel;
+    if (active) {
+      previewFsIcon.className = 'bi bi-fullscreen-exit';
+      previewFsBtn.title = 'Vollbild beenden';
+      previewFsBtn.setAttribute('aria-label', 'Vollbild beenden');
+    } else {
+      previewFsIcon.className = 'bi bi-arrows-fullscreen';
+      previewFsBtn.title = 'Vorschau im Vollbild';
+      previewFsBtn.setAttribute('aria-label', 'Vorschau im Vollbild');
+    }
+  });
+
+  /* =====================================================================
+     Verlauf (IndexedDB)
+     ===================================================================== */
+  const HISTORY_DB_NAME    = 'htmlEditorHistoryDB';
+  const HISTORY_DB_VERSION = 1;
+  const HISTORY_STORE      = 'versions';
+  const HISTORY_MAX        = 20;
+
+  let historyDbPromise = null;
+
+  function openHistoryDB() {
+    if (historyDbPromise) return historyDbPromise;
+    historyDbPromise = new Promise((resolve, reject) => {
+      let req;
+      try {
+        req = indexedDB.open(HISTORY_DB_NAME, HISTORY_DB_VERSION);
+      } catch (e) {
+        historyDbPromise = null;
+        reject(e);
+        return;
+      }
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(HISTORY_STORE)) {
+          const store = db.createObjectStore(HISTORY_STORE, { keyPath: 'hash' });
+          store.createIndex('timestamp', 'timestamp');
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => { historyDbPromise = null; reject(req.error); };
+    });
+    return historyDbPromise;
+  }
+
+  function hashString(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    return (h >>> 0).toString(16);
+  }
+
+  function getDisplayName(text) {
+    const m = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(text);
+    if (m) {
+      const title = m[1].replace(/\s+/g, ' ').trim();
+      if (title) return title;
+    }
+    const flat = text.replace(/\s+/g, ' ').trim();
+    return flat.slice(0, 15) || '(leer)';
+  }
+
+  function formatTime(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    const diff = Date.now() - ts;
+    if (diff < 60000)      return 'gerade eben';
+    if (diff < 3600000)    return 'vor ' + Math.floor(diff / 60000) + ' Min.';
+    if (diff < 86400000)   return 'vor ' + Math.floor(diff / 3600000) + ' Std.';
+    if (diff < 604800000)  return 'vor ' + Math.floor(diff / 86400000) + ' Tg.';
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) +
+           ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function addHistoryVersion(text) {
+    if (!text || !text.trim()) return false;
+    try {
+      const db = await openHistoryDB();
+      const hash        = hashString(text);
+      const displayName = getDisplayName(text);
+      const timestamp   = Date.now();
+      const lines       = text.split('\n').length;
+      const chars       = text.length;
+
+      let wasInserted = false;
+
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(HISTORY_STORE, 'readwrite');
+        const store = tx.objectStore(HISTORY_STORE);
+        const getReq = store.get(hash);
+        getReq.onsuccess = () => {
+          const existing = getReq.result;
+          if (existing) {
+            existing.timestamp = timestamp;
+            store.put(existing);
+          } else {
+            store.put({ hash, text, displayName, timestamp, lines, chars });
+            wasInserted = true;
+          }
+        };
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error || new Error('Transaction aborted'));
+      });
+
+      if (wasInserted) await trimHistory(db);
+      return true;
+    } catch (e) {
+      console.error('Verlauf-Speichern fehlgeschlagen:', e);
+      return false;
+    }
+  }
+
+  async function trimHistory(db) {
+    try {
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(HISTORY_STORE, 'readwrite');
+        const store = tx.objectStore(HISTORY_STORE);
+        const index = store.index('timestamp');
+        const countReq = store.count();
+        countReq.onsuccess = () => {
+          const excess = countReq.result - HISTORY_MAX;
+          if (excess <= 0) return;
+          let deleted = 0;
+          const cursorReq = index.openCursor();
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result;
+            if (cursor && deleted < excess) {
+              cursor.delete();
+              deleted++;
+              cursor.continue();
+            }
+          };
+        };
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+      console.error('Verlauf-Trim fehlgeschlagen:', e);
+    }
+  }
+
+  function getHistoryVersions() {
+    return openHistoryDB().then(db => new Promise((resolve, reject) => {
+      const tx = db.transaction(HISTORY_STORE, 'readonly');
+      const store = tx.objectStore(HISTORY_STORE);
+      const index = store.index('timestamp');
+      const req = index.openCursor(null, 'prev');
+      const result = [];
+      req.onsuccess = () => {
+        const cursor = req.result;
+        if (cursor) {
+          result.push(cursor.value);
+          cursor.continue();
+        }
+      };
+      tx.oncomplete = () => resolve(result);
+      tx.onerror = () => reject(tx.error);
+    }));
+  }
+
+  async function refreshHistoryList() {
+    const listEl = document.getElementById('historyList');
+    if (!listEl) return;
+    try {
+      const versions = await getHistoryVersions();
+      if (versions.length === 0) {
+        listEl.innerHTML = '<div class="history-empty">Noch keine Versionen.<br>Speichere manuell oder öffne/einfüge eine Datei.</div>';
+        return;
+      }
+      listEl.innerHTML = '';
+      versions.forEach((v, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'history-item';
+        btn.setAttribute('role', 'menuitem');
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'history-name';
+
+        const numEl = document.createElement('span');
+        numEl.className = 'version-num';
+        numEl.textContent = 'Version ' + (idx + 1);
+        nameEl.appendChild(numEl);
+
+        const titleEl = document.createElement('span');
+        titleEl.textContent = v.displayName || '(leer)';
+        nameEl.appendChild(titleEl);
+
+        const metaEl = document.createElement('span');
+        metaEl.className = 'history-meta';
+        metaEl.textContent =
+          formatTime(v.timestamp) + ' · ' +
+          (v.lines || 0).toLocaleString('de-DE') + ' Zeilen · ' +
+          (v.chars || 0).toLocaleString('de-DE') + ' Zeichen';
+
+        btn.appendChild(nameEl);
+        btn.appendChild(metaEl);
+        btn.addEventListener('click', () => loadHistoryVersion(v));
+
+        listEl.appendChild(btn);
+      });
+    } catch (e) {
+      console.error('Verlauf-Laden fehlgeschlagen:', e);
+      listEl.innerHTML = '<div class="history-empty">Verlauf konnte nicht geladen werden.</div>';
+    }
+  }
+
+  function loadHistoryVersion(v) {
+    if (!v || typeof v.text !== 'string') return;
+    setValue(v.text);
+    closeAllDropdowns();
+    toast('Version geladen');
   }
 
   /* =====================================================================
@@ -874,21 +1823,18 @@
       closeAllDropdowns(dd);
       dd.classList.toggle('open', willOpen);
       toggle.setAttribute('aria-expanded', String(willOpen));
+      if (willOpen && dd.id === 'ddInfo') updateInfo();
+      if (willOpen && dd.id === 'ddHistory') refreshHistoryList();
     });
 
-    // Klicks im Menü schließen es (außer bei verschachtelten Aktionen)
     dd.querySelector('.dropdown-menu').addEventListener('click', (e) => {
-      // Wenn auf einen Menüpunkt geklickt wurde, schließen
       if (e.target.closest('button')) {
         closeAllDropdowns();
       }
     });
   });
 
-  // Klick außerhalb schließt Dropdowns
   document.addEventListener('click', () => closeAllDropdowns());
-
-  // Escape schließt Dropdowns
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeAllDropdowns();
   });
@@ -933,40 +1879,8 @@
     }
   });
 
-  /* Hilfsfunktion: Inhalt aus Zwischenablage (Text oder Datei) einfügen */
   async function pasteFromClipboard(replace) {
     try {
-      // Versuche zuerst, Dateien zu lesen
-      if (navigator.clipboard.read) {
-        try {
-          const items = await navigator.clipboard.read();
-          console.log( items );
-          for (const item of items) {
-            const fileTypes = item.types.filter(t => !t.startsWith('text/'));
-            if (fileTypes.length > 0) {
-              const fileType = fileTypes[0];
-              const blob = await item.getType(fileType);
-              if (blob.size <= 1024 * 1024) { // 1 MB
-                const text = await blob.text();
-                if (replace) {
-                  setValue(text);
-                  toast('Datei eingefügt (ersetzt)');
-                } else {
-                  insertText(text);
-                  toast('Datei eingefügt');
-                }
-                return;
-              } else {
-                toast('Datei zu groß (max. 1 MB)');
-                return;
-              }
-            }
-          }
-        } catch (e) {
-          // Fallback auf readText
-        }
-      }
-      // Fallback: Nur Text
       const text = await navigator.clipboard.readText();
       if (text) {
         if (replace) {
@@ -976,6 +1890,8 @@
           insertText(text);
           toast('Eingefügt');
         }
+        await addHistoryVersion(editor.value);
+        await refreshHistoryList();
       } else {
         toast('Zwischenablage ist leer');
       }
@@ -1010,14 +1926,28 @@
     toast('Formatiert');
   });
 
+  /* =====================================================================
+     Auto-Grow für Such-/Ersetzen-Textareas
+     ===================================================================== */
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    const h = Math.min(120, Math.max(34, el.scrollHeight));
+    el.style.height = h + 'px';
+  }
+
+  findInput.addEventListener('input', () => autoGrow(findInput));
+  replaceInput.addEventListener('input', () => autoGrow(replaceInput));
+
   document.getElementById('btnFind').addEventListener('click', () => {
     const open = findbar.hidden;
     findbar.hidden = !open;
     if (open) {
       const sel = editor.value.slice(editor.selectionStart, editor.selectionEnd);
-      if (sel && sel.indexOf('\n') === -1) findInput.value = sel;
+      if (sel) findInput.value = sel;
       findInput.focus();
       findInput.select();
+      autoGrow(findInput);
+      autoGrow(replaceInput);
     }
   });
 
@@ -1031,10 +1961,34 @@
   document.getElementById('btnReplaceAll').addEventListener('click', replaceAll);
 
   findInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); findNext(); }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      findNext();
+    }
   });
   replaceInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); replaceCurrent(); }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      replaceCurrent();
+    }
+  });
+
+  /* =====================================================================
+     Verlauf: Version Speichern
+     ===================================================================== */
+  document.getElementById('btnSaveVersion').addEventListener('click', async () => {
+    const text = editor.value;
+    if (!text || !text.trim()) {
+      toast('Editor ist leer');
+      return;
+    }
+    const ok = await addHistoryVersion(text);
+    if (ok) {
+      toast('Version gespeichert');
+      await refreshHistoryList();
+    } else {
+      toast('Speichern fehlgeschlagen');
+    }
   });
 
   /* =====================================================================
@@ -1056,9 +2010,8 @@
   }
 
   btnLineNumbers.addEventListener('click', (e) => {
-    e.stopPropagation(); // Dropdown nicht schließen durch Button-Klick (wird extern gehandhabt)
+    e.stopPropagation();
     toggleLineNumbers();
-    // Dropdown schließen nach Aktion
     closeAllDropdowns();
   });
 
@@ -1125,9 +2078,11 @@
      ===================================================================== */
   function loadFile(file) {
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       setValue(String(reader.result));
       toast('Geladen: ' + file.name);
+      await addHistoryVersion(editor.value);
+      await refreshHistoryList();
     };
     reader.onerror = () => toast('Datei konnte nicht gelesen werden');
     reader.readAsText(file);
@@ -1151,7 +2106,7 @@
     if (dragCounter <= 0) { dragCounter = 0; dropOverlay.classList.remove('show'); }
   });
 
-  document.addEventListener('drop', e => {
+  document.addEventListener('drop', async e => {
     e.preventDefault();
     dragCounter = 0;
     dropOverlay.classList.remove('show');
@@ -1159,7 +2114,12 @@
     const f = e.dataTransfer.files && e.dataTransfer.files[0];
     if (f) { loadFile(f); return; }
     const text = e.dataTransfer.getData('text/plain');
-    if (text) { insertText(text); toast('Text eingefügt'); }
+    if (text) {
+      insertText(text);
+      toast('Text eingefügt');
+      await addHistoryVersion(editor.value);
+      await refreshHistoryList();
+    }
   });
 
   /* =====================================================================
@@ -1192,8 +2152,6 @@
 
   window.addEventListener('resize', syncScroll);
 
-
-
   document.getElementById('btnShare').addEventListener('click', async () => {
     const fileName = 'index.html';
     const blob = new Blob([editor.value], { type: 'text/html;charset=utf-8' });
@@ -1216,6 +2174,7 @@
     }
   });
 
+  updateInfo();
 
 })();
 </script>
