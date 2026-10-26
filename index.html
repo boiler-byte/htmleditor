@@ -2588,10 +2588,10 @@ body.minimap-dragging * {
       btn.setAttribute('aria-label', 'Editor als App installieren');
       btn.innerHTML = '<i class="bi bi-download" aria-hidden="true"></i> App installieren';
       Object.assign(btn.style, {
-        position: 'fixed',
-        right: '16px',
-        bottom: '16px',
-        zIndex: '150',
+        // position: 'fixed',
+        // right: '16px',
+        // bottom: '16px',
+        // zIndex: '150',
         display: 'inline-flex',
         alignItems: 'center',
         gap: '8px',
@@ -2603,7 +2603,7 @@ body.minimap-dragging * {
         border: '0',
         borderRadius: '8px',
         cursor: 'pointer',
-        boxShadow: '0 6px 20px rgba(0,0,0,.35)'
+        // boxShadow: '0 6px 20px rgba(0,0,0,.35)'
       });
 
       btn.addEventListener('click', async () => {
@@ -2616,7 +2616,7 @@ body.minimap-dragging * {
         btn.remove();
       });
 
-      document.body.appendChild(btn);
+      document.querySelector('#ddView .dropdown-menu').appendChild(btn);
     }
   });
 
