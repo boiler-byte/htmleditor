@@ -26,6 +26,8 @@
 html, body { height: 100%; }
 [hidden] { display: none !important; }
 
+:root { --editor-font-size: 14px; }
+
 body {
   margin: 0;
   display: flex;
@@ -109,6 +111,23 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 13px; font-weight: 600;
 }
+
+/* ---------- Schriftgrößen-Auswahl ---------- */
+.font-size-select {
+  margin-left: auto;
+  font: inherit;
+  font-size: 12.5px;
+  padding: 3px 7px;
+  color: #cfd6e4;
+  background: #151821;
+  border: 1px solid #2b3242;
+  border-radius: 5px;
+  cursor: pointer;
+  min-height: 26px;
+  min-width: 70px;
+}
+.font-size-select:hover { background: #262d3e; }
+.font-size-select:focus { outline: none; border-color: #3b82f6; }
 
 /* ---------- Verlauf ---------- */
 .history-list {
@@ -202,7 +221,7 @@ body {
   margin: 0;
   padding: 12px 8px 48px;
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 14px;
+  font-size: var(--editor-font-size);
   line-height: 1.55;
   text-align: right;
   color: #4b5566;
@@ -221,7 +240,7 @@ body {
   position: absolute; inset: 0; margin: 0; padding: 12px 12px 48px;
   border: 0; outline: 0;
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 14px; line-height: 1.55; letter-spacing: 0; tab-size: 2; -moz-tab-size: 2;
+  font-size: var(--editor-font-size); line-height: 1.55; letter-spacing: 0; tab-size: 2; -moz-tab-size: 2;
   white-space: pre; overflow-wrap: normal; word-break: normal;
 }
 .code-area pre { overflow: hidden; pointer-events: none; color: #d7dce5; z-index: 0; }
@@ -479,7 +498,7 @@ body.minimap-dragging * {
 @media (max-width: 640px) {
   .code-area pre,
   .code-area textarea,
-  .gutter pre { font-size: 14px; padding: 12px 8px 48px 0; }
+  .gutter pre { font-size: var(--editor-font-size); padding: 12px 8px 48px 0; }
   .dropdown-toggle { padding: 8px 10px; }
   .gutter { width: 42px; }
   .dropdown.align-right .dropdown-menu { left: auto; right: 0; }
@@ -584,6 +603,17 @@ body.minimap-dragging * {
         <span>Zeilennummern anz.</span>
         <i class="bi bi-check-lg check" hidden aria-hidden="true"></i>
       </button>
+      <div class="info-row" role="presentation">
+        <i class="bi bi-fonts" aria-hidden="true"></i>
+        <span>Schriftgröße</span>
+        <select id="fontSizeSelect" class="font-size-select" aria-label="Schriftgröße">
+          <option value="8">8px</option>
+          <option value="10">10px</option>
+          <option value="12">12px</option>
+          <option value="14" selected>14px</option>
+          <option value="16">16px</option>
+        </select>
+      </div>
       <div class="sep" role="separator"></div>
       <button id="btnPreview" role="menuitemcheckbox" aria-checked="false">
         <i class="bi bi-window" aria-hidden="true"></i>
@@ -1131,6 +1161,10 @@ body.minimap-dragging * {
   const appOptions = loadAppOptions();
 
   let showLineNumbers = appOptions.lineNumbers !== false;
+
+  const FONT_SIZES = [8, 10, 12, 14, 16];
+  let editorFontSize = parseInt(appOptions.fontSize, 10);
+  if (!FONT_SIZES.includes(editorFontSize)) editorFontSize = 14;
 
   function syncScroll() {
     hlEl.scrollTop  = editor.scrollTop;
@@ -2531,6 +2565,45 @@ body.minimap-dragging * {
       requestAnimationFrame(() => {
         drawMinimap();
         updateMinimapViewport();
+      });
+    }
+
+    /* Schriftgröße */
+    document.documentElement.style.setProperty('--editor-font-size', editorFontSize + 'px');
+
+    const fontSizeSelect = document.getElementById('fontSizeSelect');
+    if (fontSizeSelect) {
+      fontSizeSelect.value = String(editorFontSize);
+
+      // Dropdown offen halten, wenn man mit dem Select interagiert
+      ['click', 'mousedown'].forEach(evt => {
+        fontSizeSelect.addEventListener(evt, (e) => e.stopPropagation());
+      });
+
+      fontSizeSelect.addEventListener('change', () => {
+        const px = parseInt(fontSizeSelect.value, 10);
+        if (!FONT_SIZES.includes(px)) return;
+
+        // Sichtbare Zeile merken, damit die Scrollposition beim Reflow erhalten bleibt
+        const oldLH = parseFloat(getComputedStyle(editor).lineHeight) || 22;
+        const firstLine = editor.scrollTop / oldLH;
+
+        editorFontSize = px;
+        document.documentElement.style.setProperty('--editor-font-size', px + 'px');
+        saveAppOptions({ fontSize: px });
+
+        requestAnimationFrame(() => {
+          const newLH = parseFloat(getComputedStyle(editor).lineHeight) || 22;
+          editor.scrollTop = firstLine * newLH;
+          if (showLineNumbers) updateLineNumbers();
+          syncScroll();
+          if (showMinimap) {
+            drawMinimap();
+            updateMinimapViewport();
+          }
+        });
+
+        toast('Schriftgröße: ' + px + 'px');
       });
     }
   })();

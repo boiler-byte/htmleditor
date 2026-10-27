@@ -2,7 +2,7 @@
    HTML Editor – Service Worker
    ===================================================================== */
 
-const CACHE_VERSION = 'v1';                       // bei Updates erhöhen!
+const CACHE_VERSION = 'v1.3';                       // bei Updates erhöhen
 const CACHE_NAME    = 'htmleditor-' + CACHE_VERSION;
 
 const PRECACHE_URLS = [
